@@ -16,7 +16,7 @@ def extract_line_key_targets(file_path: str) -> list[StoreCommonArea]:
     """
     Extract valid common area devices for line key generation.
     Excludes Zebra and Algo. Includes only Poly or 'Other' phones.
-    """
+    """ 
     try:
         df = pd.read_excel(file_path, sheet_name="Zoom Import Sheet")
         result = extract_corp_info(file_path)
@@ -89,56 +89,57 @@ def generate_line_key_report(corp_number: str, common_areas: list, output_dir: s
         rows = []
 
         for ca in common_areas:
-            if isinstance(ca, dict):
-                extension = str(ca.get("Extension", "")).strip()
-                raw_name = str(ca.get("Name", "")).strip()
-                if raw_name.startswith(extension):
-                    raw_name = raw_name[len(extension):].strip()
-                name = raw_name
-                site = str(ca.get("Site", "")).strip()
-            else:
-                extension = str(ca.extension).strip()
-                name = str(ca.name).strip()
-                if name.startswith(extension):
-                    name = name[len(extension):].strip()
-                site = str(ca.site_name).strip()
+            # Extract and format extension and raw name, using corp number derived from each row's site
+            raw_extension = str(ca.get("Extension", "") if isinstance(ca, dict) else ca.extension).strip()
+            raw_site = str(ca.get("Site", "") if isinstance(ca, dict) else ca.site_name).strip()
+            # Extract the corp number from the row's site (assumes format "CORP XYZ ...")
+            try:
+                row_corp = raw_site.split()[1]
+            except (IndexError, TypeError):
+                row_corp = corp_number
+            extension = format_full_extension(row_corp, raw_extension)
+            raw_name = str(ca.get("Name", "") if isinstance(ca, dict) else ca.name).strip()
+            site = raw_site
 
             short_ext = extension[-3:] if extension else ""
-
-            if not extension or not name:
+            if not extension or not raw_name:
                 continue
 
-            try:
-                formatted_ext = format_full_extension(corp_number, extension)
-            except ValueError:
-                print(f"❌ Skipping invalid extension '{extension}' for CORP {corp_number}")
-                continue
-
-            if "RX" in name.upper():
-                key_set = LINE_KEY_SETS["RX"]
-            elif any(k in name.upper() for k in ["BOOKKEEPING", "BUS CTR"]):
-                key_set = LINE_KEY_SETS["BUSCTR+BOOKKEEPING"]
-            elif not name.endswith("-W") and "fax" not in name.lower():
-                key_set = LINE_KEY_SETS["DEFAULT"]
+            # Derive descriptive name (drop any leading short_ext or numeric prefix)
+            if raw_name.startswith(short_ext):
+                desc = raw_name[len(short_ext):].strip()
+            elif " " in raw_name:
+                desc = raw_name.split(" ", 1)[1].strip()
             else:
+                desc = raw_name
+
+            upper_desc = desc.upper()
+            # skip FAX, PAGE, PROMPT entries, any REG entries, or those ending with "-W"
+            if any(keyword in upper_desc for keyword in ["FAX", "PAGE", "PROMPT"]) or upper_desc.startswith("REG") or upper_desc.endswith("-W"):
                 continue
 
+            # Determine the appropriate line key set
+            if "RX" in upper_desc:
+                key_set = LINE_KEY_SETS["RX"]
+            elif any(k in upper_desc for k in ["BOOKKEEPING", "BUS CTR"]):
+                key_set = LINE_KEY_SETS["BUSCTR+BOOKKEEPING"]
+            else:
+                key_set = LINE_KEY_SETS["DEFAULT"]
+
+            # Build the row dictionary
             row = {
                 "Update": "TRUE",
-                "Extension": formatted_ext,
-                "Common Area Name": f"{short_ext} {name}".strip(),
+                "Extension": extension,
+                "Common Area Name": f"{short_ext} {desc}".strip(),
                 "Site": site,
             }
-
             for key in key_set:
                 kn = key.get("key_number")
                 if not kn:
                     continue
                 row[f"Key {kn} Type"] = key.get("type", "")
-                number_template = key.get("number", "")
-                row[f"Key {kn} Number"] = number_template.format(corp_ext=corp_number)
+                row[f"Key {kn} Number"] = key.get("number", "").format(corp_ext=row_corp, extension=short_ext)
                 row[f"Key {kn} Alias"] = key.get("alias", "")
-
             rows.append(row)
 
         if not rows:
@@ -155,16 +156,18 @@ def build(input_folder: str) -> pd.DataFrame:
         for common_area in extract_line_key_targets(file_path):
             key_set = get_line_key_set(common_area.name)
 
-            # Compute full_ext and short_ext
-            full_ext = format_full_extension(common_area.corp_number, common_area.extension)
-            short_ext = full_ext[-3:]
+            # Use extension as-is (avoid double-formatting)
+            full_ext = common_area.extension
+            short_ext = full_ext[-3:] if full_ext else ""
 
-            # Clean up the common area name to ensure it starts with short_ext
+            # Clean up the common area name to ensure it starts with short_ext, and avoid double short_ext
             raw_name = common_area.name
-            # remove any leading original extension numbers if present
-            if raw_name.startswith(common_area.extension):
-                raw_name = raw_name[len(common_area.extension):].strip()
-            common_area_name = f"{short_ext} {raw_name}".strip()
+            if raw_name.startswith(full_ext):
+                raw_name = raw_name[len(full_ext):].strip()
+            name_part = raw_name
+            if name_part.startswith(short_ext):
+                name_part = name_part[len(short_ext):].strip()
+            common_area_name = f"{short_ext} {name_part}".strip()
 
             row = {
                 "Update": "TRUE",
@@ -179,7 +182,7 @@ def build(input_folder: str) -> pd.DataFrame:
                     continue
                 row[f"Key {key_number} Type"] = key.get("type", "")
                 number_template = key.get("number", "")
-                row[f"Key {key_number} Number"] = number_template.format(corp_ext=common_area.corp_number)
+                row[f"Key {key_number} Number"] = number_template.format(corp_ext=common_area.corp_number, extension=short_ext)
                 row[f"Key {key_number} Alias"] = key.get("alias", "")
 
             rows.append(row)

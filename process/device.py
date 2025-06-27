@@ -95,7 +95,7 @@ def build(input_folder: str) -> pd.DataFrame:
             phone_brand = "Poly" if device.phone.strip().lower() == "poly" else device.phone
             
             rows.append({
-                "Action": "CREATE",
+                "Action": "IGNORE",
                 "Name": device.name,
                 "MAC Address": device.mac_address,
                 "Site": device.site_name,  # Use device.site_name instead of local site_name

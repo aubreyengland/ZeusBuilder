@@ -90,7 +90,7 @@ def build(input_folder: str) -> pd.DataFrame:
                 "Country": "US",
                 "Area Code": "",
                 "Department": department, 
-                "Cost Code": site_name,
+                "Cost Center": site_name,
             })
         
         #create a update row for the common areas with "REG" or "STORE PAGE" in the name to block country code
@@ -115,7 +115,7 @@ def build(input_folder: str) -> pd.DataFrame:
                     "Country": "US",
                     "Area Code": "",
                     "Department": department, 
-                    "Cost Code": site_name,
+                    "Cost Center": site_name,
                     "Block Country Code": "US",
             })
         page_row = {
@@ -136,7 +136,7 @@ def build(input_folder: str) -> pd.DataFrame:
             "Country": "US",
             "Area Code": "",
             "Department": site_name, 
-            "Cost Code": site_name,
+            "Cost Center": site_name,
         }
         page_block_row = {
             "Action": "UPDATE",
@@ -156,7 +156,7 @@ def build(input_folder: str) -> pd.DataFrame:
             "Country": "US",
             "Area Code": "",
             "Department": site_name, 
-            "Cost Code": site_name,
+            "Cost Center": site_name,
             "Block Country Code": "US",
         }
         
@@ -180,7 +180,7 @@ def build(input_folder: str) -> pd.DataFrame:
             "Country": "US",
             "Area Code": "",
             "Department": site_name, 
-            "Cost Code": site_name,
+            "Cost Center": site_name,
         }
         rows.append(prompt_rec_row)
     
