@@ -108,6 +108,12 @@ def generate_line_key_report(corp_number: str, common_areas: list, output_dir: s
             if not extension or not name:
                 continue
 
+            try:
+                formatted_ext = format_full_extension(corp_number, extension)
+            except ValueError:
+                print(f"❌ Skipping invalid extension '{extension}' for CORP {corp_number}")
+                continue
+
             if "RX" in name.upper():
                 key_set = LINE_KEY_SETS["RX"]
             elif any(k in name.upper() for k in ["BOOKKEEPING", "BUS CTR"]):
@@ -119,7 +125,7 @@ def generate_line_key_report(corp_number: str, common_areas: list, output_dir: s
 
             row = {
                 "Update": "TRUE",
-                "Extension": format_full_extension(corp_number, extension),
+                "Extension": formatted_ext,
                 "Common Area Name": f"{short_ext} {name}".strip(),
                 "Site": site,
             }

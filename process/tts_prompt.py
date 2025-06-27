@@ -52,18 +52,23 @@ def extract_call_flow_data(file_path: str) -> dict:
     }
     
 def extract_rx_phone_number(file_path: str) -> str:
-    #Extract the phone number from the value in the RX Number key
     cf = pd.read_excel(file_path, sheet_name="CALL FLOW")
     key_col = cf.columns[0]
     val_col = cf.columns[1]
     get_value = lambda key: cf.loc[cf[key_col].str.upper() == key, val_col].iloc[0]
-    rx_number = get_value("RX NUMBER")
-    # Extract the phone number using regex that matches (xxx) xxx-xxxx or xxx-xxx-xxxx
-    match = re.search(r'(\(\d{3}\)\s*\d{3}-\d{4}|\d{3}-\d{3}-\d{4})', rx_number)
-    if match:
-        return match.group(0)
-    else:
-        return rx_number.strip()
+    
+    try:
+        rx_value = get_value("RX NUMBER")
+        if pd.isna(rx_value):
+            return ""
+        
+        rx_str = str(rx_value).strip()
+        
+        # Look for standard US phone formats
+        match = re.search(r'(\(\d{3}\)\s*\d{3}-\d{4}|\d{3}-\d{3}-\d{4})', rx_str)
+        return match.group(0) if match else rx_str
+    except Exception as e:
+        return f"[Invalid RX NUMBER: {e}]"
 
 def create_tts_prompt(corp_number: str, site_name: str, flows: dict, language: str) -> str:
     if language.lower() == "en":

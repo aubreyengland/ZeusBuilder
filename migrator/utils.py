@@ -3,16 +3,6 @@ import pandas as pd
 from migrator.models import StoreData
 import json
 
-def find_excel_files(input_folder: str) -> list[str]:
-    """
-    Finds all discovery docs in the input folder that match the expected naming pattern.
-    Expected format: 'CORP XYZ DISCOVERY DOC.xlsx'
-    """
-    return [
-        os.path.join(input_folder, f)
-        for f in os.listdir(input_folder)
-        if f.startswith("CORP ") and f.endswith("DISCOVERY DOC.xlsx")
-    ]
 
 def extract_corp_info(file_path: str) -> tuple[StoreData, str] | None:
     """
@@ -24,20 +14,25 @@ def extract_corp_info(file_path: str) -> tuple[StoreData, str] | None:
         df = pd.read_excel(file_path, sheet_name="STORE INFORMATION", header=None)
         
         # Extract the raw corp number
-        raw_corp = df[df[0] == "CORP NUMBER"][1].values[0]
-        raw_corp_number = str(raw_corp)  # Unprocessed corp number
-        
+        corp_rows = df[df[0] == "CORP NUMBER"]
+        if corp_rows.empty or pd.isna(corp_rows.iloc[0, 1]):
+            raise ValueError(f"Missing or empty CORP NUMBER in 'STORE INFORMATION' sheet of {file_path}")
+        raw_corp_number = str(corp_rows.iloc[0, 1])
+
         # Process the corp number (e.g., replace leading '0' with '9')
         corp_number = raw_corp_number.zfill(3)  # Ensure it's 3 digits
         if corp_number.startswith("0"):
             corp_number = "9" + corp_number[1:]
-        
+
         # Resolve the region
         region = resolve_region(raw_corp_number)
-        
+
         # Extract the physical address
-        physical_address = df[df[0] == "PHYSICAL ADDRESS"][1].values[0]
-        
+        address_rows = df[df[0] == "PHYSICAL ADDRESS"]
+        if address_rows.empty or pd.isna(address_rows.iloc[0, 1]):
+            raise ValueError(f"Missing or empty PHYSICAL ADDRESS in 'STORE INFORMATION' sheet of {file_path}")
+        physical_address = str(address_rows.iloc[0, 1])
+
         # Return both processed and unprocessed corp numbers
         return StoreData.from_extracted(str(corp_number), str(physical_address), region=region), raw_corp_number
     except Exception as e:
@@ -84,13 +79,10 @@ def format_full_extension(corp_number: str, extension: str) -> str:
     - If corp starts with '0': replace '0' with '9', then append '0' and 3-digit extension (e.g., 063 + 123 → 9630123)
     - Otherwise: append '0' and 3-digit extension (e.g., 567 + 123 → 5670123)
     """
-    corp = corp_number.zfill(3)
-    ext = str(int(extension)).zfill(3)
-
-    if corp.startswith("0"):
-        corp = "9" + corp[1:]
-    return f"{corp}0{ext}"
-
+    ext = str(extension).strip()
+    if ext.isdigit():
+        ext = ext.zfill(3)
+    return f"{corp_number}{ext}"
 
 def find_excel_files(input_folder: str) -> list[str]:
    """
@@ -151,5 +143,25 @@ LINE_KEY_SETS = {
     ],
     "DEFAULT": [
         {"key_number": "2", "type": "speed_dial", "number": "100", "alias": "STORE PAGE"},
+        {"key_number": "4", "type": "speed_dial", "number": "678", "alias": "CURBSIDE"},
+        {"key_number": "5", "type": "speed_dial", "number": "600", "alias": "MIC COVERAGE"},
+        {"key_number": "6", "type": "speed_dial", "number": "608", "alias": "CCMs"},
+        {"key_number": "7", "type": "speed_dial", "number": "683", "alias": "MAINT"},
+        {"key_number": "8", "type": "speed_dial", "number": "607", "alias": "GROCERY"},
+        {"key_number": "9", "type": "speed_dial", "number": "671", "alias": "DAIRY"},
+        {"key_number": "10", "type": "speed_dial", "number": "604", "alias": "DRUGSTORE"},
+        {"key_number": "11", "type": "speed_dial", "number": "641", "alias": "COSMETICS"},
+        {"key_number": "12", "type": "speed_dial", "number": "609", "alias": "PRODUCE"},
+        {"key_number": "13", "type": "speed_dial", "number": "698", "alias": "FLORAL"},
+        {"key_number": "14", "type": "speed_dial", "number": "606", "alias": "DELI"},
+        {"key_number": "15", "type": "speed_dial", "number": "605", "alias": "RX"},
+        {"key_number": "16", "type": "speed_dial", "number": "611", "alias": "MIC"},
+        {"key_number": "17", "type": "speed_dial", "number": "614", "alias": "STORE DIRECTOR"},
+        {"key_number": "18", "type": "speed_dial", "number": "615", "alias": "UNIT DIRECTOR"},
+        {"key_number": "19", "type": "speed_dial", "number": "617", "alias": "ASST DIRECTOR"},
+        {"key_number": "20", "type": "speed_dial", "number": "681", "alias": "ADMIN"},
+        {"key_number": "21", "type": "speed_dial", "number": "686", "alias": "BOOKKEEPING"},
+        {"key_number": "22", "type": "speed_dial", "number": "2109362999", "alias": "HEB CA"},
+        {"key_number": "23", "type": "speed_dial", "number": "699", "alias": "O-NIGHT COVERAGE"},
     ],    
 }

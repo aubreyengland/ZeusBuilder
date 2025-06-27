@@ -92,6 +92,32 @@ def build(input_folder: str) -> pd.DataFrame:
                 "Department": department, 
                 "Cost Code": site_name,
             })
+        
+        #create a update row for the common areas with "REG" or "STORE PAGE" in the name to block country code
+        for ca in extract_common_areas(file_path):
+            if "REG" in ca.name.upper():
+            
+                rows.append({
+                    "Action": "UPDATE",
+                    "Name": ca.name,
+                    "Extension": format_full_extension(site.corp_number, ca.extension),  # write the full extension here
+                    "New Extension": "", 
+                    "Phone Numbers": "",
+                    "Site": site_name,  # Use the combination of CORP XYZ and REGION
+                    "Calling Plans": "US/CA Unlimited Calling Plan",
+                    "Caller ID": f"CORP {site.corp_number} MAIN NUMBER",
+                    "Timezone": "America/Chicago",
+                    "Address Line 1": site.parsed_address.address_line1,
+                    "Address Line 2": site.parsed_address.address_line2,
+                    "City": site.parsed_address.city,
+                    "State": site.parsed_address.state,
+                    "ZIP": site.parsed_address.zip_code,
+                    "Country": "US",
+                    "Area Code": "",
+                    "Department": department, 
+                    "Cost Code": site_name,
+                    "Block Country Code": "US",
+            })
         page_row = {
             "Action": "CREATE",
             "Name": "100 STORE PAGE",
@@ -112,7 +138,30 @@ def build(input_folder: str) -> pd.DataFrame:
             "Department": site_name, 
             "Cost Code": site_name,
         }
+        page_block_row = {
+            "Action": "UPDATE",
+            "Name": "100 STORE PAGE",
+            "Extension": format_full_extension(site.corp_number, "100"), 
+            "New Extension": "",
+            "Phone Numbers": "",
+            "Site": site_name,  # Use the combination of CORP XYZ and REGION
+            "Calling Plans": "US/CA Unlimited Calling Plan",
+            "Caller ID": f"CORP {site.corp_number} MAIN NUMBER",
+            "Timezone": "America/Chicago",
+            "Address Line 1": site.parsed_address.address_line1,
+            "Address Line 2": site.parsed_address.address_line2,
+            "City": site.parsed_address.city,
+            "State": site.parsed_address.state,
+            "ZIP": site.parsed_address.zip_code,
+            "Country": "US",
+            "Area Code": "",
+            "Department": site_name, 
+            "Cost Code": site_name,
+            "Block Country Code": "US",
+        }
+        
         rows.append(page_row)
+        rows.append(page_block_row)
         prompt_rec_row = {
             "Action": "CREATE",
             "Name": "595 PROMPT RECORDER",
@@ -135,33 +184,7 @@ def build(input_folder: str) -> pd.DataFrame:
         }
         rows.append(prompt_rec_row)
     
-    # extract common areas containing "REG" in the name
-    # and add them to the rows with the action "UPDATE"
-    if ca.name.startswith("REG"):
-   
-  
-        rows.append({
-            "Action": "UPDATE",
-            "Name": ca.name,
-            "Extension": format_full_extension(ca.extension, site.corp_number),#write the full extension here
-            "New Extension": "", 
-            "Phone Numbers": "",
-            "Site": site_name,  # Use the combination of CORP XYZ and REGION
-            "Calling Plans": "US/CA Unlimited Calling Plan",
-            "Caller ID": f"CORP {site.corp_number} MAIN NUMBER",
-            "Timezone": "America/Chicago",
-            "Address Line 1": site.parsed_address.address_line1,
-            "Address Line 2": site.parsed_address.address_line2,
-            "City": site.parsed_address.city,
-            "State": site.parsed_address.state,
-            "ZIP": site.parsed_address.zip_code,
-            "Country": "US",
-            "Area Code": "",
-            "Department": department, 
-            "Cost Code": site_name,
-            "Block Country Code": "US",
-        })
-            
+
     df = pd.DataFrame(rows)
     df["Extension"] = df["Extension"].astype(str)
 
