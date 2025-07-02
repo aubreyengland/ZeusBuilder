@@ -62,53 +62,130 @@ DEFAULT_ENGLISH_KEYS.update({
 DEFAULT_SPANISH_KEYS.update({
 })
 
-def build_ar_rows(corp_number: str, site_name: str) -> list[dict]:
+def extract_zoom_menu_targets(file_path: str) -> dict:
+    try:
+        cf = pd.read_excel(file_path, sheet_name="CALL FLOW", header=None)
+        menu_row = cf[cf.apply(lambda row: row.astype(str).str.contains("MENU SCRIPT", case=False).any(), axis=1)]
+        if menu_row.empty:
+            return {}
+
+        row_idx = menu_row.index[0]
+
+        menu_text = cf.iloc[row_idx, 2]
+        if pd.isna(menu_text):
+            return {}
+
+        lines = str(menu_text).splitlines()
+
+        targets = {}
+
+        for line in lines:
+            line = line.strip()
+            if not line or '(' not in line or ')' not in line:
+                continue
+            # Extract key digit (before dot)
+            key_digit_part = line.split('.')[0].strip()
+            if not key_digit_part.isdigit():
+                continue
+            # Extract target inside parentheses
+            target_part = line.split('(')[-1].split(')')[0].strip().zfill(4)
+            targets[f"Key {key_digit_part} Target"] = target_part
+
+        if not targets:
+            print(f"⚠️ No valid targets extracted from {file_path}")
+
+        return targets
+
+    except Exception as e:
+        print(f"⚠️ Error extracting zoom menu targets from {file_path}: {e}")
+        return {}
+
+def build_ar_rows(corp_number: str, site_name: str, file_path: str) -> list[dict]:
     rows = []
 
-    for lang, ext_suffix in [("SPANISH", "0002")]:
-        row = {
-            "Action": "CREATE",
-            "Name": f"{site_name} - {lang}",
-            "Site": site_name,  # Use the combined CORP XYZ REGION
-            "Extension": "0002",  # Use processed corp number
-            "Timezone": "America/Chicago",
-            "Phone Numbers": "",
-            "Prompt Repeat": 3,
-            "Prompt Language": "es-US",
-        }
+    # Try to extract Zoom Menu targets
+    extracted_targets = extract_zoom_menu_targets(file_path)
 
-        # Fill keys by rewriting corp prefix in targets
-        for key, value in DEFAULT_SPANISH_KEYS.items():
-            if "Target" in key and value:
-                row[key] = format_full_extension(corp_number, value[-4:]) # Keep last 4 digits
+    # Spanish
+    row = {
+        "Action": "CREATE",
+        "Name": f"{site_name} - SPANISH",
+        "Site": site_name,
+        "Extension": "0002",
+        "Audio File": f"{site_name} SPANISH",
+        "Timezone": "America/Chicago",
+        "Phone Numbers": "",
+        "Prompt Repeat": 3,
+        "Prompt Language": "es-US",
+    }
+
+    for key, value in DEFAULT_SPANISH_KEYS.items():
+        if key in ["No Entry Action", "No Entry Target"]:
+            if key == "No Entry Target":
+                row[key] = format_full_extension(corp_number, value[-3:])
             else:
                 row[key] = value
+        elif "Target" in key:
+            if key in extracted_targets:
+                target_val = extracted_targets[key]
+                row[key] = format_full_extension(corp_number, target_val[-3:]) if target_val else ""
+            else:
+                row[key] = ""
+            if row[key] == "":
+                action_key = key.replace("Target", "Action")
+                row[action_key] = ""
+        else:
+            row[key] = value
+    rows.append(row)
 
-        rows.append(row)
+    # English
+    row = {
+        "Action": "UPDATE",
+        "Name": f"{site_name} - ENGLISH",
+        "Site": site_name,
+        "Extension": format_full_extension(corp_number, "001"),
+        "Audio File": f"{site_name} ENGLISH",
+        "Timezone": "America/Chicago",
+        "Phone Numbers": f"{site_name} MAIN NUMBER",
+        "Prompt Repeat": 3,
+        "Prompt Language": "en-US",
+    }
 
-        
-    # Process for English Auto Receptionist
-    for lang, ext_suffix in [("ENGLISH", "0001")]:
-        row = {
-            "Action": "UPDATE",
-            "Name": f"{site_name} - {lang}",
-            "Site": site_name,  # Use the combined CORP XYZ REGION
-            "Extension": format_full_extension(corp_number, ext_suffix),  # Use processed corp number
-            "Timezone": "America/Chicago",
-            "Phone Numbers": f"{site_name} MAIN NUMBER",
-            "Prompt Repeat": 3,
-            "Prompt Language": "en-US",
-        }
+    # If "Jump to Spanish Day AA" is present, set Key 1 Action/Target accordingly for English keys only
+    try:
+        cf = pd.read_excel(file_path, sheet_name="CALL FLOW", header=None)
+        menu_row = cf[cf.apply(lambda row: row.astype(str).str.contains("MENU SCRIPT", case=False).any(), axis=1)]
+        if not menu_row.empty:
+            row_idx = menu_row.index[0]
+            menu_text = cf.iloc[row_idx, 2]
+            if not pd.isna(menu_text):
+                lines = str(menu_text).splitlines()
+                if any("Jump to Spanish Day AA" in line for line in lines):
+                    extracted_targets["Key 1 Action"] = "Auto Receptionist"
+                    extracted_targets["Key 1 Target"] = "0002"
+    except Exception:
+        pass
 
-        # Fill keys by rewriting corp prefix in targets
-        for key, value in DEFAULT_ENGLISH_KEYS.items():
-            if "Target" in key and value:
-                row[key] = format_full_extension(corp_number, value[-4:]) # Keep last 4 digits
+    for key, value in DEFAULT_ENGLISH_KEYS.items():
+        if key in ["No Entry Action", "No Entry Target"]:
+            if key == "No Entry Target":
+                row[key] = format_full_extension(corp_number, value[-3:])
             else:
                 row[key] = value
+        elif "Target" in key:
+            if key in extracted_targets:
+                target_val = extracted_targets[key]
+                row[key] = format_full_extension(corp_number, target_val[-3:]) if target_val else ""
+            else:
+                row[key] = ""
+            if row[key] == "":
+                action_key = key.replace("Target", "Action")
+                row[action_key] = ""
+        else:
+            row[key] = value
+    rows.append(row)
 
-        rows.append(row)
-        return rows
+    return rows
 
 
 
@@ -124,7 +201,7 @@ def build(input_folder: str) -> pd.DataFrame:
         site_name = f"CORP {raw_corp_number} {site.region}".strip()  # Combine CORP XYZ and REGION
 
         # Generate rows for the Auto Receptionist
-        all_rows.extend(build_ar_rows(site.corp_number, site_name))  # Use processed corp number and combined site name
+        all_rows.extend(build_ar_rows(site.corp_number, site_name, file_path))  # Use processed corp number and combined site name
 
     return pd.DataFrame(all_rows)
 
