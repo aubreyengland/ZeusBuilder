@@ -1,0 +1,349 @@
+<div class="modal-body" style="overflow-y: auto; min-height: 160px;">
+    <h1 class="fs-4">User Calling Details</h1>
+    <h2 class="fs-6">General</h2>
+    <table class="table">
+        <tr>
+            <th scope="col" style="width: 40%">Name</th>
+            <td>{{ vm.data.name|default('--') }}</td>
+        </tr>
+        <tr>
+            <th scope="col" style="width: 40%">Phone Number</th>
+            <td>{{ vm.data.phoneNumber|default('--') }}</td>
+        </tr>
+        <tr>
+            <th scope="col" style="width: 40%">Extension</th>
+            <td>{{ vm.data.extension|default('--') }}</td>
+        </tr>
+        <tr>
+            <th scope="col" style="width: 40%">Emergency Callback Type</th>
+            <td>{{ vm.data.emergency_callback_type|default('--') }}</td>
+        </tr>
+        <tr>
+            <th scope="col" style="width: 40%">Emergency Callback Number</th>
+            <td>{{ vm.data.emergency_callback_number|default('--') }}</td>
+        </tr>
+        <tr>
+            <th scope="col" style="width: 40%">Calling Licenses</th>
+            <td>{{ vm.data.calling_license_names|join(', ') }}</td>
+        </tr>
+    </table>
+
+    <h2 class="fs-6">Caller ID</h2>
+    <table class="table">
+        <tr>
+            <th scope="col" style="width: 40%">Number Type</th>
+            <td>{{  vm.data.caller_id_number_type|default('--') }}</td>
+        </tr>
+        <tr>
+            <th scope="col" style="width: 40%">Custom Number</th>
+            <td>{{  vm.data.customNumber|default('--') }}</td>
+        </tr>
+        <tr>
+            <th scope="col" style="width: 40%">Name Type</th>
+            <td>{{  vm.data.caller_id_name_type|default('--') }}</td>
+        </tr>
+        <tr>
+            <th scope="col" style="width: 40%">Name Other</th>
+            <td>{{  vm.data.caller_id_name_other|default('--') }}</td>
+        </tr>
+        <tr>
+            <th scope="col" style="width: 40%">First Name</th>
+            <td>{{  vm.data.caller_id_first_name|default('--') }}</td>
+        </tr>
+        <tr>
+            <th scope="col" style="width: 40%">Last Name</th>
+            <td>{{  vm.data.caller_id_last_name|default('--') }}</td>
+        </tr>
+        <tr>
+            <th scope="col" style="width: 40%">Block</th>
+            <td>{{  vm.data.blockInForwardCallsEnabled|default('--') }}</td>
+        </tr>
+    </table>
+
+    <h2 class="fs-6">Inbound Permissions (Customized: {{ vm.data.internal_custom|default('--') }})</h2>
+    <table class="table">
+        <tr>
+            <th scope="col" style="width: 40%">Internal Calls</th>
+            <td>{{ vm.data.internalCallsEnabled|default('--') }}</td>
+        </tr>
+        <tr>
+            <th scope="col" style="width: 40%">Collect Calls</th>
+            <td>{{ vm.data.collectCallsEnabled|default('--') }}</td>
+        </tr>
+        <tr>
+            <th scope="col" style="width: 40%">External Transfer</th>
+            <td>{{ vm.data.externalTransfer|default('--') }}</td>
+        </tr>
+    </table>
+
+    <h2 class="fs-6">Outbound Permissions (Customized: {{ vm.data.external_custom|default('--') }})</h2>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col" class="table-light" style="width: 40%">Call Type</th>
+            <th scope="col" class="table-light" style="width: 40%">Policy</th>
+            <th scope="col" class="table-light" style="width: 40%">Transfer</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Internal</td>
+            <td>{{  vm.data.internal_call|default('--') }}</td>
+            <td>{{ vm.data.internal_call_transfer|default('--') }}</td>
+        </tr>
+        <tr>
+            <td>Toll Free</td>
+            <td>{{  vm.data.toll_free|default('--') }}</td>
+            <td>{{ vm.data.toll_free_transfer|default('--') }}</td>
+        </tr>
+        <tr>
+            <td>National</td>
+            <td>{{  vm.data.national|default('--') }}</td>
+            <td>{{ vm.data.national_transfer|default('--') }}</td>
+        </tr>
+        <tr>
+            <td>International</td>
+            <td>{{ vm.data.international|default('--') }}</td>
+            <td>{{ vm.data.international_transfer|default('--') }}</td>
+        </tr>
+        <tr>
+            <td>Operator Assist</td>
+            <td>{{  vm.data.operator_assisted|default('--') }}</td>
+            <td>{{ vm.data.operator_assisted_transfer|default('--') }}</td>
+        </tr>
+        <tr>
+            <td>Dir. Assist</td>
+            <td>{{  vm.data.chargeable_directory_assisted|default('--') }}</td>
+            <td>{{ vm.data.chargeable_directory_assisted_transfer|default('--') }}</td>
+        </tr>
+        <tr>
+            <td>Special I</td>
+            <td>{{  vm.data.special_services_i|default('--') }}</td>
+            <td>{{ vm.data.special_services_i_transfer|default('--') }}</td>
+        </tr>
+        <tr>
+            <td>Special II</td>
+            <td>{{ vm.data.special_services_ii|default('--') }}</td>
+            <td>{{ vm.data.special_services_ii_transfer|default('--') }}</td>
+        </tr>
+        <tr>
+            <td>Premium I</td>
+            <td>{{ vm.data.premium_services_i|default('--') }}</td>
+            <td>{{ vm.data.premium_services_i_transfer|default('--') }}</td>
+        </tr>
+        <tr>
+            <td>Premium II</td>
+            <td>{{ vm.data.premium_services_ii|default('--') }}</td>
+            <td>{{ vm.data.premium_services_ii_transfer|default('--') }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+ <h2 class="fs-6">Music On Hold</h2>
+<table class="table">
+    <tr>
+        <th scope="col" style="width: 40%">Enabled</th>
+        <td>{{ vm.data.mohEnabled|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Greeting</th>
+        <td>{{ vm.data.greeting|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">File Name</th>
+        <td>{{ vm.data.fileName|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Level</th>
+        <td>{{ vm.data.level|default('--') }}</td>
+    </tr>
+</table>
+
+<h2 class="fs-6">Forward Always</h2>
+<table class="table">
+    <tr>
+        <th scope="col" style="width: 40%">Enabled</th>
+        <td>{{ vm.data.always_enabled|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Destination</th>
+        <td>{{ vm.data.always_destination|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Send to VM</th>
+        <td>{{ vm.data.always_vm|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Play Tone</th>
+        <td>{{ vm.data.always_tone|default('--') }}</td>
+    </tr>
+</table>
+
+<h2 class="fs-6">Forward Busy</h2>
+<table class="table">
+    <tr>
+        <th scope="col" style="width: 40%">Enabled</th>
+        <td>{{ vm.data.busy_enabled|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Destination</th>
+        <td>{{ vm.data.busy_destination|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Send to VM</th>
+        <td>{{ vm.data.busy_vm|default('--') }}</td>
+    </tr>
+</table>
+
+<h2 class="fs-6">Forward No Answer</h2>
+<table class="table">
+    <tr>
+        <th scope="col" style="width: 40%">Enabled</th>
+        <td>{{ vm.data.no_answer_enabled|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Destination</th>
+        <td>{{ vm.data.no_answer_destination|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Number of Rings</th>
+        <td>{{ vm.data.no_answer_rings|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Send to VM</th>
+        <td>{{ vm.data.no_answer_vm|default('--') }}</td>
+</table>
+
+<h2 class="fs-6">Forward Business Continuity</h2>
+<table class="table">
+    <tr>
+        <th scope="col" style="width: 40%">Enabled</th>
+        <td>{{ vm.data.business_continuity_enabled|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Destination</th>
+        <td>{{ vm.data.business_continuity_destination|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Send to VM</th>
+        <td>{{ vm.data.business_continuity_vm|default('--') }}</td>
+</table>
+
+<h2 class="fs-6">Voicemail</h2>
+<table class="table">
+    <tr>
+        <th scope="col" style="width: 40%">Enabled</th>
+        <td>{{ vm.data.vm_enabled|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Send All Calls to VM</th>
+        <td>{{ vm.data.sendAllCalls_enabled|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Send Busy Calls to VM</th>
+        <td>{{ vm.data.sendBusyCalls_enabled|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Busy Greeting</th>
+        {%- if vm.data.sendBusyCalls_greeting == 'CUSTOM' %}
+            <td>Custom File: {{ vm.data.sendBusyCalls_file|default('--') }}</td>
+        {%- else %}
+            <td>{{ vm.data.sendBusyCalls_greeting|default('--') }}</td>
+        {%- endif %}
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Send Unanswered Calls to VM</th>
+        <td>{{ vm.data.sendUnansweredCalls_enabled|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Unanswered Rings</th>
+        <td>{{ vm.data.sendUnansweredCalls_numberOfRings|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Unanswered Greeting</th>
+        {%- if vm.data.sendUnansweredCalls_greeting == 'CUSTOM' %}
+            <td>Custom File: {{ vm.data.sendUnansweredCalls_file|default('--') }}</td>
+        {%- else %}
+            <td>{{ vm.data.sendUnansweredCalls_greeting|default('--') }}</td>
+        {%- endif %}
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Zero Out</th>
+        {%- if vm.data.transferToNumber_enabled == 'Y' %}
+            <td>Destination: {{ vm.data.transferToNumber_destination|default('--') }}</td>
+        {%- else %}
+            <td>{{ vm.data.transferToNumber_enabled|default('--') }}</td>
+        {%- endif %}
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Email Enabled</th>
+        <td>{{ vm.data.emailCopyOfMessage_enabled|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Email Address</th>
+        <td>{{ vm.data.emailCopyOfMessage_emailId|default('--') }}</td>
+    </tr>
+       <tr>
+        <th scope="col" style="width: 40%">Notification Enabled</th>
+        <td>{{ vm.data.notifications_enabled|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Notification Destination</th>
+        <td>{{ vm.data.notifications_destination|default('--') }}</td>
+    </tr>
+</table>
+
+<h2 class="fs-6">Call Recording</h2>
+<table class="table">
+    <tr>
+        <th scope="col" style="width: 40%">Enabled</th>
+        <td>{{ vm.data.recording_enabled|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Record Type</th>
+        <td>{{ vm.data.record|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Record VM</th>
+        <td>{{ vm.data.recordVoicemailEnabled|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Start/Stop PSTN</th>
+        <td>{{ vm.data.start_stop_pstnCallsEnabled|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Start/Stop Internal</th>
+        <td>{{ vm.data.start_stop_internalCallsEnabled|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Record Notification</th>
+        <td>{{ vm.data.record_notification|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Repeat Notification</th>
+        <td>{{ vm.data.repeat_enabled|default('--') }}</td>
+    </tr>
+    <tr>
+        <th scope="col" style="width: 40%">Repeat Interval</th>
+        <td>{{ vm.data.repeat_interval|default('--') }}</td>
+    </tr>
+</table>
+
+<h2 class="fs-6">Monitoring</h2>
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col" class="table-light" style="width: 40%">Number</th>
+        <th scope="col" class="table-light" style="width: 40%">Location</th>
+    </tr>
+    </thead>
+    <tbody>
+    {%- for item in vm.data.monitoring|default([]) %}
+        <tr>
+            <td>{{ item.number|default('--') }}</td>
+            <td>{{ item.location_name|default('--') }}</td>
+        </tr>
+    {%- endfor %}
+    </tbody>
+</table>
+</div>

@@ -1,0 +1,145 @@
+{% from '_macros.jinja2' import flash_alert, svg_icon, result_icon -%}
+{% set active_data_type = vm.tables|first -%}
+{% set bulk_view = tool ~ '.' 'bulk' %}
+{% set results_view = tool ~ '.' 'bulk_results' %}
+
+{% macro load_error_text(load_errors) -%}
+{% if load_errors.sheet %}
+    Worksheet processing failed.
+{% else %}
+    {% set count=load_errors.rows|default([])|length %}
+    {% if count == 1 %}
+        Processing failed for {{ count }} row.
+    {% else %}
+        Processing failed for {{ count }} rows.
+    {% endif %}
+{% endif -%}
+{% endmacro -%}
+
+
+<div class="d-flex flex-column bg-white mt-4 mb-2 mx-2"
+     style="border-top-left-radius: 6px; border-top-right-radius: 6px;">
+    <!-- Start Bulk tab list for each data type present in the uploaded workbook -->
+    <nav class="d-flex">
+        <div class="nav nav-tabs px-3 pb-2 border-0 flex-grow-1" id="bulk-tablist" role="tablist">
+            {% for data_type, table in vm.tables.items() -%}
+                {% set active = 'active' if data_type == active_data_type else '' -%}
+                <button id="bulk-{{ data_type }}-tab"
+                        class="tab {{ active }} position-relative pt-3 pb-2"
+                        data-bs-toggle="tab"
+                        data-bs-target="#bulk-{{ data_type }}-tabpanel"
+                        type="button" role="tab">
+                    {{ table.title }}
+                    {#
+                        Show red dot on tab if upload errors present for the worksheet
+                    #}
+                    {%- if vm.load_errors[data_type] -%}
+                        <span id="{{ data_type }}-tab-badge"
+                              class="position-absolute translate-middle p-1 bg-danger border border-light rounded-circle"
+                              style="top: 15%; left: 95%;"
+                        ><span class="visually-hidden">Worksheet load errors</span>
+                      </span>
+                    {%- endif -%}
+                </button>
+            {% endfor -%}
+        </div>
+        <!-- Prevent tab buttons from encroaching on absolute-positions buttons below-->
+        <div style="width:200px;"></div>
+    </nav>
+    <!-- End Bulk tab list -->
+    <hr class="my-2">
+    <!-- Start Bulk tab panels for each data type present in the uploaded workbook -->
+    <!-- Wrapper around tab content to enable x/y scrolling of tables. Requires parent div to be display: flex flex-direction: column-->
+    <div class="gridtable-scroll-wrapper">
+        <div class="tab-content">
+            {% for data_type, table in vm.tables.items() -%}
+                {% set active = 'active show' if data_type == active_data_type else '' -%}
+                {% set load_errors = vm.load_errors[data_type] -%}
+
+                <div id="bulk-{{ data_type }}-tabpanel"
+                     class="tab-pane fade show {{ active }}"
+                     role="tabpanel"
+                     aria-labelledby="#bulk-{{ data_type }}-tabpanel">
+
+                    <div id="bulk-{{ data_type }}-content" class="tab-pane">
+                        <div class="pb-2 px-3 d-flex align-items-stretch justify-content-end">
+                            <div class="d-flex justify-content-center flex-grow-1">
+
+                                {#
+                                    Show alert if errors processing worksheet were found
+                                #}
+                                <div id="bulk-{{ data_type }}-alert">
+                                    {% if load_errors %}
+                                        <div role="alert"
+                                             class="alert fade show text-center bulk-alert bulk-alert-fail alert-dismissible">
+                                            <div>
+                                              {{ load_error_text(load_errors) }}
+                                                <a href="#" class="alert-link"
+                                                   _="on click add .d-none to .modal then remove .d-none from #modal-{{ data_type }}">Details</a>
+                                            </div>
+                                            <button type="button" class="btn-close" aria-label="Close"
+                                                    data-bs-dismiss="alert"
+                                                    _="on click remove #{{ data_type }}-tab-badge"></button>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {#
+                                TODO: Hack to position buttons for each tab to the far right of the tabs. Done to remove buttons from x/y scrolling
+                                    A better long-term solution may be to use a single set of buttons outside of the tab contents and use some js to
+                                    identify the active tab and submit it.
+                            #}
+                            <div class="d-flex align-items-center gap-2"
+                                 style="position:absolute; top: 88px; right: 32px;">
+                                <a type="button" class="btn btn-sm btn-outline-secondary"
+                                   href="{{ url_for(bulk_view) }}">
+                                    {{ svg_icon("arrow-counterclockwise", size="1.5em") }} Reset
+                                </a>
+                                {% if table.rows %}
+                                    <button type="button" id="{{ data_type }}-submit"
+                                            class="btn btn-sm btn-outline-danger"
+                                            _="on click set @disabled to me
+                                        then trigger 'bulk-{{ data_type }}-submit' on .bulk-{{ data_type }}-item
+                                        then trigger 'bulk-{{ data_type }}-result' on #bulk-{{ data_type }}-result">
+                                        <span class="fw-bold">{{ svg_icon("arrow-return-right", size="1.5em") }}</span>
+                                        Submit
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if table.rows %}
+                            {% include 'tool/bulk_table.html' %}
+                        {% endif %}
+                    </div>
+
+                    {#
+                    Add modal with worksheet error details linked to alert badge
+                #}
+                    {% if load_errors %}
+                        {{ render_partial('tool/upload_error_modal.html', data_type=data_type, title=table.title, table_cols=table.columns, load_errors=load_errors) }}
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<!-- End Bulk tab panels -->
+
+<!-- Add flash messages in htmx response -->
+{%- if vm.messages -%}
+    <div hx-swap-oob="beforeend:#alert-container">
+        {%- for msg, category in vm.messages -%}
+            {{ flash_alert(msg, category) }}
+        {%- endfor -%}
+    </div>
+{%- endif -%}
+
+<script>
+    function handleIgnoredRow(elementId) {
+        const resultCell = document.getElementById(elementId);
+        
+        if (resultCell) {
+            resultCell.innerHTML = '{{ result_icon("ignore") }}';
+        }
+    }
+</script>

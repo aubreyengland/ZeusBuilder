@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block navbar %}{% endblock %}
+{% block content %}
+    <div class="d-flex justify-content-center m-5">
+        <div class="m-5">
+            <img class="d-block" src="{{ url_for('static', filename='img/zeus.png') }}" alt="" width="128" height="128">
+        </div>
+        <div class="m-5">
+            <div>
+                <span class="display-5">{{ vm.detail }}</span>
+            </div>
+            <div class="mt-2">
+                {% if resend_url -%}
+                <p>Click <a href="{{ resend_url }}">here</a> to request the message be resent.</p>
+                {% endif -%}
+                <p>If the problem persists, contact <a href="mailto:{{ vm.support_contact }}">{{ vm.support_contact }}</a>.</p>
+                {% if vm.incident -%}
+                <p>Please include <code class="small">Request ID:{{ vm.incident }}</code> in your support request.</p>
+                {% endif -%}
+            </div>
+            <div>
+                <a href="{{ vm.back_link }}" class="btn btn-outline-primary mt-3">Go Back</a>
+            </div>
+   </div>
+   </div>
+{% endblock %}

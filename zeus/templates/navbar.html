@@ -1,0 +1,75 @@
+{% from '_macros.jinja2' import is_active, svg_icon %}
+
+{#
+    Return a nav dropdown list with options to change password and logout
+    for a logged in user
+#}
+{%- macro user_nav()  -%}
+<li class="nav-item dropdown bg-white" style="z-index: 99;">
+  <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button">
+      <span>{{ svg_icon('person-circle') }}</span>
+  </a>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li class="dropdown-item disabled">{{ current_user.display_name }}</li>
+    <li><hr></li>
+    <li><a class="dropdown-item" href="{{ url_for('security.change_password') }}">Change Password</a></li>
+    <li><a class="dropdown-item" href="{{ url_for('security.logout') }}">Logout</a></li>
+    <hr>
+    <li><a class="dropdown-item" href="{{ url_for('main.about') }}">About</a></li>
+  </ul>
+</li>
+{%- endmacro -%}
+
+{%- macro nav_dropdown(opt)  -%}
+{%- set routes = opt.dropdown|map(attribute='route') -%}
+<li class="nav-item dropdown bg-white" style="z-index: 99;">
+  <a class="nav-link {{ is_active(*routes) }} dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button">
+      <span>{{ opt.title }}</span>
+  </a>
+  <ul class="dropdown-menu dropdown-menu">
+      {%- for item in opt.dropdown  -%}
+        {%- if item.include  -%}
+            <li><a class="dropdown-item" href="{{ url_for(item.route) }}">{{ item.title }}</a></li>
+        {%- endif  -%}
+      {%- endfor  %}
+  </ul>
+</li>
+{%- endmacro -%}
+
+<nav class="navbar navbar-expand-sm navbar-light">
+    <div class="container-fluid">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-content"
+            aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse bg-white" id="navbar-content" style="z-index: 99;">
+        <ul class="navbar-nav m-auto bg-white">
+            {%- for opt in navbar_options() -%}
+                {%- if opt.include -%}
+                    {%- if opt.route  -%}
+                        <li class="nav-item">
+                            <a class="nav-link {{ is_active(opt.route) }}" href="{{ url_for(opt.route) }}">{{ opt.title }}</a>
+                        </li>
+                    {%- else -%}
+                        {{ nav_dropdown(opt) }}
+                    {%- endif -%}
+                {%- endif -%}
+            {%- endfor -%}
+        </ul>
+        <ul class="navbar-nav navbar-right">
+            {% if current_user.is_anonymous -%}
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('security.login') }}">
+                      <span>{{ svg_icon('box-arrow-in-right') }}</span>
+                  </a>
+                </li>
+            {%- else -%}
+                <li class="nav-item">
+                    <a id="navbar-help" class="nav-link" href="{{ help_url|default('/help/') }}" target="_blank"><span>{{ svg_icon('question-circle') }}</span></a>
+                </li>
+                {{ user_nav() }}
+            {%- endif  -%}
+        </ul>
+    </div>
+    </div>
+</nav>

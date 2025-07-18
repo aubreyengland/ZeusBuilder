@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% from "_macros.jinja2" import disable_active_org_options, is_active, svg_icon %}
+
+{% block sidebar %}
+    <!-- Start Sidebar -->
+    <div class="sidebar col-2 d-flex flex-column gap-3">
+
+        <div>
+
+            <div class="text-center">
+                <a href="{{ url_for('main.index') }}"
+                   class="zeus-header fs-2 text-decoration-none">
+                   <img class="zeus-image" src="{{ url_for('static', filename='img/zeus_white.png') }}" alt=""/>
+                </a>
+            </div>
+
+            <div class="py-3 px-1">
+                <div class="text-center zeus-header fs-6 pb-2">{{ title }}</div>
+                <select name="{{ tool }}org"
+                        tabindex="0"
+                        hx-swap="none"
+                        hx-post="/{{ tool }}/org_select"
+                        class="org-select {{ 'border-0' if active_org else 'border-4 border-warning' }}">
+
+                    <option value="">Select an Organization</option>
+
+                    {% for org in orgs %}
+                        <option value="{{ org.id }}" {{ 'selected' if org.id|string() == active_org else '' }} >{{ org.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <nav class="nav sidebar-nav flex-column flex-grow-1 py-3">
+          {% for opt in options %}
+          <a class="nav-link {{ disable_active_org_options(tool, opt) }} {{ is_active(opt.route) }}" href="{{ url_for(opt.route) }}">
+            <span>{{ svg_icon(opt.name) }}</span>{{ opt.title }}
+          </a>
+          {% endfor %}
+        </nav>
+
+    </div>
+<!-- End Tool Sidebar -->
+{% endblock sidebar %}
+
+{% block content %}
+
+    <!-- Start Tool Content -->
+    {% block tool_content %} {% endblock %}
+
+    <!-- End Tool Content -->
+    {% block indicator %}
+
+        <div id="page-indicator" class="htmx-indicator spinner-border text-dark spinner-page"
+             style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+
+        {% endblock indicator %}
+{% endblock content %}

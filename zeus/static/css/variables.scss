@@ -1,0 +1,133 @@
+@import "../../../node_modules/bootstrap/scss/functions";
+// Colors taken from CDW style guide
+// https://connect.cdw.com/canada/mktg/Documents/CDW_PWGI_StyleGuide_Ph2_050715.pdf
+
+$white: #fff;
+
+$gray-100: #efefef;
+$gray-300: #d1d0ce;
+$gray-400: #bcbcbc;
+$gray-500: #a8a8aa;
+$gray-600: #898b8e;
+$gray-700: #63656a;
+$gray-800: #54565b;
+$gray-900: #4d4d4f; // preferred text color
+
+// Secondary Color palette
+$blue: #007299;
+$purple: #76236d;
+$pink: #b42573;
+$orange: #f28b00;
+$green: #009d4f;
+$red: #CC0000; // CDW corp primary color
+
+$blue-100: tint-color($blue, 80%);
+$blue-200: tint-color($blue, 60%);
+$blue-300: tint-color($blue, 40%);
+$blue-400: tint-color($blue, 20%);
+$blue-500: $blue;
+$blue-600: shade-color($blue, 20%);
+$blue-700: shade-color($blue, 40%);
+$blue-800: shade-color($blue, 60%);
+$blue-900: shade-color($blue, 80%);
+
+$red-100: tint-color($red, 80%);
+$red-200: tint-color($red, 60%);
+$red-300: tint-color($red, 40%);
+$red-400: tint-color($red, 20%);
+$red-500: $red;
+$red-600: shade-color($red, 20%);
+$red-700: shade-color($red, 40%);
+$red-800: shade-color($red, 60%);
+$red-900: shade-color($red, 80%);
+
+$createColor: #597EAA;
+$updateColor: #8E7CC3;
+$deleteColor: #B45F06;
+$ignoreColor: #666666;
+
+/* Color Theme Variables */
+
+// themeGray
+$themeGray-primary: $gray-900;
+$themeGray-bg:  #f7f7f7;
+$themeGray-color: $gray-900;
+$themeGray-navbar-bg: $white;
+$themeGray-navbar-color: #EFEFEFFF;
+$themeGray-sidebar-bg: $gray-700;
+$themeGray-sidebar-color: $white;
+$list-group-hover-bg: rgb(13 202 240 / 7%);
+
+// themeRed
+$themeRed-primary: $red;
+$themeRed-bg:  #F7F7F7;
+$themeRed-color: $gray-900;
+$themeRed-navbar-bg: $white;
+$themeRed-navbar-color: $red;
+$themeRed-sidebar-bg: $red;
+$themeRed-sidebar-color: $white;
+
+// themeBlue
+$themeBlue-primary: $blue;
+$themeBlue-bg:  #F7F7F7;
+$themeBlue-color: $gray-900;
+$themeBlue-navbar-bg: $blue-300;
+$themeBlue-navbar-color: $white;
+$themeBlue-sidebar-bg: $blue-800;
+$themeBlue-sidebar-color: $white;
+$themeBlue-nav-link-color: $white;
+
+/* Active Theme Variables */
+$background-color: $themeGray-bg;
+$navbar-bg: $themeGray-navbar-bg;
+$navbar-color: $themeGray-navbar-color;
+$sidebar-bg: $themeRed-sidebar-bg;
+$sidebar-color: $themeGray-sidebar-color;
+
+
+// Set BS color defaults
+$body-color: $themeGray-color;  //  default: $gray-900
+$primary: $themeGray-primary;  // default: $blue
+$body-bg: $themeGray-bg;  // default: $white
+$link-color: $primary;  // default: $primary
+$nav-link-color: $link-color;  // default: $link-color
+
+/* Global Vars */
+$navbar-height: 48px;
+$navbar-nav-link-padding-x: 1.0rem;
+$sidebar-width: 200px;
+
+// Alert Vars
+$alert-container-z-index: 99998;
+$alert-container-padding: 24px;
+
+$alert-primary-color: #808080;
+$alert-primary-background: $white;
+$alert-primary-border-color: #d1d1d1;
+
+$alert-success-color: #40871d;
+$alert-success-background: $white;
+$alert-success-border-color: #a7d590;
+
+$alert-info-color: #1c76a6;
+$alert-info-background: $white;
+$alert-info-border-color: #9fd3ef;
+
+$alert-danger-color: #a92019;
+$alert-danger-background: $white;
+$alert-danger-border-color: #f0a29d;
+
+$alert-warning-color: #d9831f;
+$alert-warning-background: $white;
+$alert-warning-border-color: #d9831f;
+
+$alert-width: 380px;
+$alert-padding: 24px 16px;
+$alert-margin: 16px;
+$alert-border-width: 2px;
+$alert-border-style: solid;
+$alert-border-radius: 4px;
+$alert-progress-bar-height: 6px;
+$alert-font-size: 15px;
+$alert-title-font-size: 18px;
+$alert-icon-size: 2rem;

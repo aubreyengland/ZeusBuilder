@@ -1,0 +1,15 @@
+{% extends "support/support_base.html" %}
+
+{% block support_content %}
+    <div class="mt-3 text-center">
+        <span class="display-4">Zeus Log Files</span>
+    </div>
+        <head>
+            <meta charset="UTF-8">
+            <title>View Log Files</title>
+        </head>
+        <body>
+          <pre>{{log_messages|safe}}</pre>
+        </body>
+
+{% endblock support_content %}

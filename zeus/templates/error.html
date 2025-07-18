@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block navbar %}{% endblock %}
+{% block content %}
+    <div class="d-flex justify-content-center m-5">
+        <div class="m-5">
+            <img class="d-block" src="{{ url_for('static', filename='img/zeus.png') }}" alt="" width="128" height="128">
+        </div>
+        <div class="m-5">
+            <div>
+                <span class="display-1 me-3">{{ vm.code }}</span>
+                <span class="display-5">{{ vm.detail }}</span>
+            </div>
+              <div><small>Request ID: {{ vm.incident|default("") }}</small></div>
+            <div>
+                <a href="{{ vm.back_link }}" class="btn btn-outline-primary mt-3">{{ vm.back_text }}</a>
+            </div>
+   </div>
+   </div>
+{% endblock %}

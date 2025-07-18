@@ -1,0 +1,9 @@
+{% from '_macros.jinja2' import result_icon %}
+
+{#
+    Swap in the result icon to replace the progress spinner using htmx oob-swap.
+    All other elements in the row remain unmodified
+#}
+<td id="result-{{ vm.data_type }}-{{ vm.row_id }}" hx-swap-oob="true" class="justify-content-center overflow-visible">
+    {{ result_icon(vm.result, vm.error) }}
+</td>

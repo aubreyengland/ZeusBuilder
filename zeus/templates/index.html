@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% from "_macros.jinja2" import zeus_banner  %}
+
+{% block sidebar %} {% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+
+        {{ zeus_banner() }}
+
+        <div class="m-auto col-xl-8 row row-cols-1 row-cols-lg-2 justify-content-center mt-5">
+        {% for opt in options %}
+            {%-  set disabled = 'disabled' if opt.disabled else '' %}
+            <div class="col mb-4">
+                <a class="card h-100 {{ disabled }}" href="{{ url_for(opt.route) }}">
+                    <div class="card-body">
+                        <h3 class="card-title">
+                              <span>{{ opt.title }}</span>
+                        </h3>
+                        <p class="card-text">{{ opt.text }}</p>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+    </div>
+{% endblock %}

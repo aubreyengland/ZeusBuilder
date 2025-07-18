@@ -1,0 +1,76 @@
+{% extends "admin/admin_base.html" %}
+{% from "_macros.jinja2" import boolIcon -%}
+
+{% block admin_content %}
+    <div class="mx-auto py-3 px-3 px-xl-5 bg-white" style="border-radius: 6px;">
+        <div class="d-flex justify-content-between px-2 py-3">
+            <div class="flex-grow-1"><h1 class="fs-3">Manage Roles</h1></div>
+            <div>
+                <button type="button"
+                        class="btn btn-outline-danger"
+                        hx-get="{{ url_for('admin.roles_form') }}"
+                        hx-target="body"
+                        hx-swap="beforeend"
+                >{{ svg_icon("plus", size="1.2em") }} New
+                </button>
+            </div>
+        </div>
+        <div class="table-responsive-xxl">
+            <table id="roles-table" class="table table-hover align-middle">
+                <thead>
+                <tr>
+                    <th class="d-none" scope="col">id</th>
+                    <th scope="col" class="">Name</th>
+                    <th class="text-center" style="width: 30%" scope="col">Members</th>
+                    <th style="width: 5%;" scope="col" data-sortable="false"></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for role in vm.rows %}
+                    <tr>
+                        <td class="d-none">{{ role.id }}</td>
+                        <td>
+                            <a href="#"
+                               class="text-decoration-none"
+                               hx-get="{{ url_for('admin.roles_form', id=role.id) }}"
+                               hx-target="body"
+                               hx-swap="beforeend"
+                            >
+                                {{ role.name }}
+                            </a>
+                        </td>
+                        <td class="text-center">{{ role.members }}</td>
+                        <td class="d-flex justify-content-center">
+                            {% if role.name != 'Admin' -%}
+                                <button
+                                        class="btn btn-link text-decoration-none p-0"
+                                        hx-confirm="Confirm User Removal"
+                                        hx-post="{{ url_for('admin.roles_delete', id=role.id) }}"
+                                        hx-swap="none">
+                                    <span class="fs-6 pe-1">{{ svg_icon("trash3", size="1.2em") }}</span>
+                                </button>
+                            {% else -%}
+                                <span class="fs-6 disabled text-muted pe-1">{{ svg_icon("trash3", size="1.2em") }}</span>
+                            {% endif -%}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock admin_content %}
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+        const table = new simpleDatatables.DataTable("#roles-table", {
+            fixedColumns: false,
+        })
+        table.on('datatable.page', function (page) {
+            const t = htmx.find("#roles-table")
+            htmx.process(t)
+            _hyperscript.processNode(t)
+        });
+    </script>
+{% endblock %}

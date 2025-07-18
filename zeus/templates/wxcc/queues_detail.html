@@ -1,0 +1,142 @@
+{%- macro routing_type() %}
+    {%- if vm.data.routingType|default('') == 'SKILLS_BASED'  %}
+    {{ vm.data.routingType }} ({{ vm.data.skillBasedRoutingType|default('') }})
+    {%- else %}
+    {{ vm.data.routingType|default('--') }}
+    {%- endif %}
+{%- endmacro %}
+
+
+<div class="modal-body" style="overflow-y: auto; min-height: 160px;">
+    <h1 class="fs-4">Queue Details</h1>
+    {%- if vm.data %}
+        <h2 class="fs-6">General</h2>
+        <table class="table table-bordered">
+            <tr>
+                <th scope="col">Name</th>
+                <td>{{ vm.data.name|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Channel Type</th>
+                <td>{{ vm.data.channelType|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Queue Type</th>
+                <td>{{ vm.data.queueType|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Routing Type</th>
+                <td>{{ routing_type() }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Description</th>
+                <td>{{ vm.data.description|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Active</th>
+                <td>{{ vm.data.active|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Timezone</th>
+                <td>{{ vm.data.timezone|default('--') }}</td>
+            </tr>
+
+            <tr>
+                <th scope="col">Max Queue Time</th>
+                <td>{{ vm.data.maxTimeInQueue|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Check Agent Avail.</th>
+                <td>{{ vm.data.checkAgentAvailability|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Max Contacts</th>
+                <td>{{ vm.data.maxActiveContacts|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Outdial Campaign</th>
+                <td>{{ vm.data.outdialCampaignEnabled|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Overflow #</th>
+                <td>{{ vm.data.overflowNumber|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">SLA</th>
+                <td>{{ vm.data.serviceLevelThreshold|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Subscription ID</th>
+                <td>{{ vm.data.subscriptionId|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Control Flow URL</th>
+                <td>{{ vm.data.controlFlowScriptUrl|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">IVR Requeue URL</th>
+                <td>{{ vm.data.ivrRequeueUrl|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Music in Queue File</th>
+                <td>{{ vm.data.music_in_queue_file|default('--') }}</td>
+            </tr>
+        </table>
+
+        {%- if vm.data.channelType == 'TELEPHONY' %}
+        <h2 class="fs-6">Permissions</h2>
+        <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th scope="col" class="table-light">Type</th>
+            <th scope="col" class="table-light">Value</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Parking</td>
+                <td>{{ vm.data.parkingPermitted|default('--') }}</td>
+            </tr>
+            <tr>
+                <td>Monitoring</td>
+                <td>{{ vm.data.monitoringPermitted|default('--') }}</td>
+            </tr>
+            <tr>
+                <td>Recording</td>
+                <td>{{ vm.data.recordingPermitted|default('--') }}</td>
+            </tr>
+            <tr>
+                <td>Pause Recording</td>
+                <td>{{ vm.data.pauseRecordingPermitted|default('--') }}</td>
+            </tr>
+            <tr>
+                <td>Record All Calls</td>
+                <td>{{ vm.data.recordingAllCallsPermitted|default('--') }}</td>
+            </tr>
+        </tbody>
+        </table>
+        {%- endif %}
+
+        {%- if vm.data.callDistributionGroups %}
+        <h2 class="fs-6">Call Distribution Groups</h2>
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th scope="col" class="table-light">#</th>
+                <th scope="col" class="table-light">Agent Groups</th>
+                <th scope="col" class="table-light">Duration</th>
+            </tr>
+            </thead>
+            <tbody>
+            {%- for row in vm.data.callDistributionGroups|default([]) %}
+                <tr>
+                    <td>{{ row.order|default('--') }}</td>
+                    <td>{{ row.agentGroups|default('--')|join(',') }}</td>
+                    <td>{{ row.duration|default('--') }}</td>
+                </tr>
+            {%- endfor %}
+            </tbody>
+        </table>
+        {%- endif %}
+    {%- endif %}
+</div>

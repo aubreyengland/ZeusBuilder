@@ -1,0 +1,122 @@
+{% from '_macros.jinja2' import svg_icon, result_icon, flash_alert %}
+
+{%- macro indicator(status, message) -%}
+    {% if status == "finished" -%}
+        {{ result_icon('success', message) }}
+    {% elif status == "failed" -%}
+        {{ result_icon('fail', message) }}
+    {% elif status -%}
+        <span role="status" class="spinner-border spinner-border-sm text-default"></span>
+    {% endif -%}
+{%- endmacro -%}
+
+{%- macro checkbox(name, label, checked='', status='', message='') %}
+    {%- set disabled = 'disabled' if vm.status else ''  %}
+    <div class="d-flex justify-content-between">
+        <div>
+            <input {{ checked }} {{ disabled }} class="form-check-input" name="{{ name }}" type="checkbox">
+            <span class="d-inline h5 mx-2">{{ svg_icon(name) }}</span>
+            <span>{{ label }}</span>
+        </div>
+        {%- if status %}
+            <div>{{ indicator(status, message) }}</div>
+        {%- endif %}
+    </div>
+{%- endmacro %}
+
+{#
+    No status means this is the initial request. Render form for submission
+    Render the form with a checkbox input for each data type.
+    Render a toggle selection checkbox to uncheck/check all items outside of the form
+    checkboxChange event triggered by checkbox-toggle to disable submit button if no options checked
+#}
+{% if not vm.status or vm.status == 'failed' -%}
+    <div class="list-group-item list-group-item-action px-3 border-bottom-0 bg-light">
+        <div>
+            <input checked id="checkbox-toggle"
+                   class="form-check-input" name="select-all" type="checkbox"
+                   _="on click
+                        set <form input/>'s checked to my.checked
+                        trigger checkboxChange on <form button />
+                     end
+                     on click from <form input />
+                       set anyChecked to <form input:checked />'s length > 0
+                       set anyUnchecked to <form input:checked />'s length < <form input />'s length
+                       set my checked to not anyUnchecked
+                       set my indeterminate to anyChecked and anyUnchecked
+                       trigger checkboxChange on <form button />
+                   end
+                   on click from <button />
+                       set @disabled to 'disabled'
+                   end
+            ">
+        </div>
+    </div>
+    <form hx-post="/{{ tool }}/export" hx-swap="outerHTML">
+        {% for item in vm.form_items %}
+            <div id="{{ item.name }}-checkbox" class="list-group-item list-group-item-action p-3">
+                {{ checkbox(item.name, item.label, checked='checked') }}
+            </div>
+        {%- endfor %}
+        <div class="d-grid my-4">
+            <button
+                    class="block btn btn-outline-danger"
+                    _="on checkboxChange
+                       set anyChecked to <form input:checked />'s length > 0
+                       set my disabled to not anyChecked
+            "><span>Export</span></button>
+        </div>
+    </form>
+
+{#
+    status == finished means export is complete. Render form with final status and download button
+#}
+{% elif vm.status == 'finished' -%}
+
+    <form method="POST" action="/{{ tool }}/export/download/{{ vm.job_id }}">
+        {% for item in vm.form_items %}
+            <div id="{{ item.name }}-checkbox" class="list-group-item list-group-item-action p-3">
+                {{ checkbox(**item) }}
+            </div>
+        {%- endfor %}
+        <div class="d-grid my-4">
+            <button class="block btn btn-outline-danger" _="on load click() me">
+                <span class="me-2">Export Complete</span><span>{{ svg_icon("download") }}</span>
+            </button>
+        </div>
+    </form>
+
+{% else -%}
+
+{#
+    Export is in-progress Render polling form and current status
+#}
+    <form hx-put="/{{ tool }}/export" hx-trigger="load delay:2s" hx-swap="outerHTML">
+        {% for item in vm.form_items %}
+            <div id="{{ item.name }}-checkbox" class="list-group-item list-group-item-action p-3">
+                {{ checkbox(**item) }}
+            </div>
+        {%- endfor %}
+        <div class="d-grid my-4">
+            <button
+                    class="block btn btn-outline-secondary"
+                    hx-confirm="Confirm Export Cancellation"
+                    hx-delete="/{{ tool }}/export"
+            >
+                <span class="me-2"></span><span>Cancel</span>
+            </button>
+        </div>
+    </form>
+
+
+{% endif -%}
+
+
+<!-- Add flash messages in htmx response -->
+{%- if vm.messages and vm.is_htmx_request -%}
+    <div hx-swap-oob="beforeend:#alert-container">
+        {%- for msg, category in vm.messages -%}
+            {{ flash_alert(msg, category) }}
+        {%- endfor -%}
+    </div>
+{%- endif -%}

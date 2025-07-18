@@ -1,0 +1,90 @@
+{% extends "tool/tool_base.html" %}
+
+{% block tool_content %}
+    <div class="mx-2 mx-lg-4 mt-5">
+        <div class="container-fluid container-lg">
+            <div class="card d-flex flex-column gap-3">
+                <div class="d-flex justify-content-between px-2 pb-3">
+                    <div class="flex-grow-1"><h1 class="fs-3">Five9 Organizations</h1></div>
+                        <div>
+                            <button type="button"
+                                    class="btn btn-outline-danger"
+                                    hx-get="{{ url_for(tool ~ '.orgs_form') }}"
+                                    hx-target="body"
+                                    hx-swap="beforeend">
+                                {{ svg_icon("plus", size="1.2em") }} New
+                            </button>
+                        </div>
+                    </div>
+
+                <div>
+                    <table class="table">
+
+                        <thead>
+                        <tr>
+                            <th class="d-none" scope="col">id</th>
+                            <th scope="col" class="">Organization Name</th>
+                            <th scope="col" class="">User Name</th>
+                            <th scope="col" style="width: 180px;">Actions</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for org in orgs %}
+
+                            <tr>
+                                <td class="d-none">{{ org.id }}</td>
+                                <td class="align-middle">{{ org.name }}</td>
+                                <td class="align-middle">{{ org.api_user }}</td>
+
+                                {#
+                                    The action column is a 1x2 grid of buttons
+                                #}
+
+                                <td class="d-flex flex-column justify-content-evenly">
+                                    <div class="d-flex flex-column">
+                                        <div class="flex-grow-1">
+                                        <a href="#"
+                                           hx-get="{{ url_for(tool ~ '.orgs_form', id=org.id) }}"
+                                           hx-target="body"
+                                           hx-swap="beforeend"
+                                           class="text-decoration-none px-2 text-nowrap">
+                                            <span class="fs-6 pe-1">{{ svg_icon("pencil-square", size="1.2em") }}</span>
+                                            <span>Edit</span>
+                                        </a>
+                                        </div>
+                                    </div>
+                                        {#
+                                            Delete button makes htmx request to delete endpoint.
+                                            The response includes the HX-Refresh header which tells htmx
+                                            to refresh the page. This is done to load the update list of
+                                            orgs in the table and in the org select in the sidebar. It also
+                                            allows session.five9org to be cleared if the active org was deleted.
+                                            hx-swap = none tells htmx not to update the dom based on the
+                                            response, which isn't necessary since the page will be refreshed.
+                                        #}
+                                    <div class="d-flex flex-column">
+                                        <div class="flex-grow-1">
+                                        <a role="button"
+                                           title="Delete"
+                                           hx-swap="none"
+                                           data-toggle="tooltip"
+                                           class="text-decoration-none px-2 text-nowrap"
+                                           hx-confirm="Confirm Five9 Org Deletion"
+                                           hx-post="{{ url_for('five9.orgs_delete', id=org.id) }}">
+                                            <span class="fs-6 pe-1">{{ svg_icon("trash3", size="1.2em") }}</span>
+                                            <span>Delete</span>
+                                        </a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock tool_content %}

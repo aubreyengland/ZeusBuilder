@@ -1,0 +1,42 @@
+<div class="modal-body" style="overflow-y: auto; min-height: 160px;">
+    <h1 class="fs-4">Auto Receptionist Details</h1>
+    {%- if vm.data %}
+        <h2 class="fs-6">Timeout Options</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" class="table-light">Prompt Repeats</th>
+                <th scope="col" class="table-light">Action</th>
+                <th scope="col" class="table-light">Target</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{{ vm.data.audio_prompt_repeat|default('--') }}</td>
+                <td>{{ vm.data.no_entry_action|default('--') }}</td>
+                <td>{{ vm.data.no_entry_target|default('--') }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h2 class="fs-6">Menu Options</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" class="table-light">Key</th>
+                <th scope="col" class="table-light">Action</th>
+                <th scope="col" class="table-light">Ext/Number</th>
+            </tr>
+            </thead>
+            <tbody>
+            {%- for row in vm.data.menu_entries|default([]) %}
+                <tr>
+                    <td>{{ row.key|default('--') }}</td>
+                    <td>{{ row.action|default('--') }}</td>
+                    <td>{{ row.extension|default('--') }}</td>
+                </tr>
+            {%- endfor %}
+            </tbody>
+        </table>
+    {%- endif %}
+</div>

@@ -1,0 +1,188 @@
+<div class="modal-body" style="overflow-y: auto; min-height: 160px;">
+    <h1 class="fs-4">Location Details</h1>
+    {%- if vm.data %}
+        <h2 class="fs-6">General</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" class="table-light">Name</th>
+                <th scope="col" class="table-light">Language</th>
+                <th scope="col" class="table-light">PSTN Type</th>
+                <th scope="col" class="table-light">Trunk/RG Name</th>
+                <th scope="col" class="table-light">Main Number</th>
+                <th scope="col" class="table-light">Routing Prefix</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{{ vm.data.name|default('--') }}</td>
+                <td>{{ vm.data.announcementLanguage|default('--') }}</td>
+                <td>{{ vm.data.connectionType|default('--') }}</td>
+                <td>{{ vm.data.connectionName|default('--') }}</td>
+                <td>{{ vm.data.callingLineIdPhoneNumber|default('--') }}</td>
+                <td>{{ vm.data.routingPrefix|default('--') }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h2 class="fs-6">Outbound</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" class="table-light">Route Unknown Ext.</th>
+                <th scope="col" class="table-light">Route Unknown Calls</th>
+                <th scope="col" class="table-light">Outbound Dial Digit</th>
+                <th scope="col" class="table-light">Outbound Digit Enforced</th>
+                <th scope="col" class="table-light">External CLID Name</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{{  vm.data.enableUnknownExtensionRoutePolicy|default('--') }}</td>
+                <td>{{  vm.data.unknownExtensionRouteName|default('--') }}</td>
+                <td>{{  vm.data.outsideDialDigit|default('--') }}</td>
+                <td>{{  vm.data.enforceOutsideDialDigit|default('--') }}</td>
+                <td>{{  vm.data.externalCallerIdName|default('--') }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h2 class="fs-6">Voice Portal</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" class="table-light">VM Transcription</th>
+                <th scope="col" class="table-light">Voice Portal Name</th>
+                <th scope="col" class="table-light">Language Code</th>
+                <th scope="col" class="table-light">Extension</th>
+                <th scope="col" class="table-light">phoneNumber</th>
+                <th scope="col" class="table-light">External CLID Name</th>
+                <th scope="col" class="table-light">First Name</th>
+                <th scope="col" class="table-light">Last Name</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{{  vm.data.voicemailTranscriptionEnabled|default('--') }}</td>
+                <td>{{  vm.data.voicePortalName|default('--') }}</td>
+                <td>{{  vm.data.languageCode|default('--') }}</td>
+                <td>{{  vm.data.extension|default('--') }}</td>
+                <td>{{  vm.data.phoneNumber|default('--') }}</td>
+                <td>{{  vm.data.firstName|default('--') }}</td>
+                <td>{{  vm.data.lastName|default('--') }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h2 class="fs-6">Call Permissions</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" class="table-light">Call Type</th>
+                <th scope="col" class="table-light">Call</th>
+                <th scope="col" class="table-light">Transfer</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Internal</td>
+                <td>{{  vm.data.internal_call|default('--') }}</td>
+                <td>{{ vm.data.internal_call_transfer|default('--') }}</td>
+            </tr>
+            <tr>
+                <td>Toll Free</td>
+                <td>{{  vm.data.toll_free|default('--') }}</td>
+                <td>{{ vm.data.toll_free_transfer|default('--') }}</td>
+            </tr>
+            <tr>
+                <td>National</td>
+                <td>{{  vm.data.national|default('--') }}</td>
+                <td>{{ vm.data.national_transfer|default('--') }}</td>
+            </tr>
+            <tr>
+                <td>International</td>
+                <td>{{  vm.data.international|default('--') }}</td>
+                <td>{{ vm.data.international_transfer|default('--') }}</td>
+            </tr>
+            <tr>
+                <td>Operator Assist</td>
+                <td>{{  vm.data.operator_assisted|default('--') }}</td>
+                <td>{{ vm.data.operator_assisted_transfer|default('--') }}</td>
+            </tr>
+            <tr>
+                <td>Dir. Assist</td>
+                <td>{{  vm.data.chargeable_directory_assisted|default('--') }}</td>
+                <td>{{ vm.data.chargeable_directory_assisted_transfer|default('--') }}</td>
+            </tr>
+            <tr>
+                <td>Special I</td>
+                <td>{{  vm.data.special_services_i|default('--') }}</td>
+                <td>{{ vm.data.special_services_i_transfer|default('--') }}</td>
+            </tr>
+            <tr>
+                <td>Special II</td>
+                <td>{{ vm.data.special_services_ii|default('--') }}</td>
+                <td>{{ vm.data.special_services_ii_transfer|default('--') }}</td>
+            </tr>
+            <tr>
+                <td>Premium I</td>
+                <td>{{ vm.data.premium_services_i|default('--') }}</td>
+                <td>{{ vm.data.premium_services_i_transfer|default('--') }}</td>
+            </tr>
+            <tr>
+                <td>Premium II</td>
+                <td>{{ vm.data.premium_services_ii|default('--') }}</td>
+                <td>{{ vm.data.premium_services_ii_transfer|default('--') }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+         <h2 class="fs-6">Transfer Numbers</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" class="table-light">Transfer Number</th>
+                <th scope="col" class="table-light">Destination</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1</td>
+                <td>{{  vm.data.autoTransferNumber1|default('--') }}</td>
+            </tr>
+        <tr>
+            <td>2</td>
+            <td>{{  vm.data.autoTransferNumber2|default('--') }}</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>{{  vm.data.autoTransferNumber3|default('--') }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+     <h2 class="fs-6">Music On Hold</h2>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col" class="table-light">Greeting</th>
+            <th scope="col" class="table-light">File Name</th>
+            <th scope="col" class="table-light">Level</th>
+            <th scope="col" class="table-light">Hold Enabled</th>
+            <th scope="col" class="table-light">Park Enabled</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>{{ vm.data.greeting|default('--') }}</td>
+            <td>{{ vm.data.fileName|default('--') }}</td>
+            <td>{{ vm.data.level|default('--') }}</td>
+            <td>{{ vm.data.callHoldEnabled|default('--') }}</td>
+            <td>{{ vm.data.callParkEnabled|default('--') }}</td>
+        </tr>
+        </tbody>
+    </table>
+    {%- else  %}
+        <h2 class="fs-6">Calling not enabled</h2>
+    {%- endif %}
+</div>

@@ -1,0 +1,46 @@
+{%- macro routing_type() %}
+    {%- if vm.data.routingType|default('') == 'SKILLS_BASED'  %}
+    {{ vm.data.routingType }} ({{ vm.data.skillBasedRoutingType|default('') }})
+    {%- else %}
+    {{ vm.data.routingType|default('--') }}
+    {%- endif %}
+{%- endmacro %}
+
+
+<div class="modal-body" style="overflow-y: auto; min-height: 160px;">
+    <h1 class="fs-4">Skill Profile Details</h1>
+    {%- if vm.data %}
+        <table class="table table-bordered">
+            <tr>
+                <th scope="col">Name</th>
+                <td>{{ vm.data.name|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Description</th>
+                <td>{{ vm.data.description|default('--') }}</td>
+            </tr>
+        </table>
+
+        {%- if vm.data.skills %}
+        <h2 class="fs-6">Skills</h2>
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th scope="col" class="table-light">Skill Name</th>
+                <th scope="col" class="table-light">Type</th>
+                <th scope="col" class="table-light">Value</th>
+            </tr>
+            </thead>
+            <tbody>
+            {%- for row in vm.data.skills|default([]) %}
+                <tr>
+                    <td>{{ row.name|default('--') }}</td>
+                    <td>{{ row.type|default('--') }}</td>
+                    <td>{{ row.value|default('--') }}</td>
+                </tr>
+            {%- endfor %}
+            </tbody>
+        </table>
+        {%- endif %}
+    {%- endif %}
+</div>

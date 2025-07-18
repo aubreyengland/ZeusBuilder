@@ -1,0 +1,63 @@
+<div class="d-flex justify-content-between px-2 pb-3">
+    <div class="flex-grow-1"><h1 class="fs-3">{{ title }} User-Defined OAuth</h1></div>
+    <div>
+        <button type="button"
+                class="btn btn-outline-danger"
+                hx-get="{{ url_for(tool ~ '.orgs_oauth_form') }}"
+                hx-target="body"
+                hx-swap="beforeend">
+            {{ svg_icon("plus", size="1.2em") }} New
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <table class="table align-middle">
+
+        <thead>
+        <tr>
+            <th class="d-none" scope="col">id</th>
+            <th scope="col" class="">Name</th>
+            <th scope="col" class="">Associated Orgs</th>
+            <th scope="col" class="text-center">Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for row in vm.oauth_rows %}
+
+            <tr>
+                <td class="d-none">{{ row.id }}</td>
+                <td class="ps-4">{{ row.name }}</td>
+                <td class="ps-4">{{ row.orgs|length }}</td>
+
+                <td class="d-flex flex-column flex-lg-row justify-content-evenly">
+                    <div class="d-flex flex-column">
+                        <div class="flex-grow-1">
+                            <a href="#"
+                               hx-get="{{ url_for(tool ~ '.orgs_oauth_form', id=row.id) }}"
+                               hx-target="body"
+                               hx-swap="beforeend"
+                               class="text-decoration-none px-2 text-nowrap">
+                                <span class="fs-6 pe-1">{{ svg_icon("pencil-square", size="1.2em") }}</span>
+                                <span>Edit</span>
+                            </a>
+                        </div>
+                        <div class="flex-grow-1">
+                            <a role="button"
+                               hx-swap="none"
+                               class="text-decoration-none px-2 text-nowrap"
+                               hx-confirm="Confirm {{ title }} Org Deletion"
+                               hx-post="{{ url_for(tool ~ '.orgs_oauth_delete', id=row.id) }}">
+                                <span class="fs-6 pe-1">{{ svg_icon("trash3", size="1.2em") }}</span>
+                                <span>Delete</span>
+                            </a>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

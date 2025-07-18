@@ -1,0 +1,69 @@
+{% from "_macros.jinja2" import render_form_field, render_switch_field, render_input_field, render_choices_field %}
+
+<div hx-target="closest div" hx-swap="outerHTML">
+    {% if vm.op == 'update' -%}
+    <div class="mb-3">
+        <h2 class="fs-6 mx-1">User Statistics</h2>
+        <div class="p-3" style="border: 1px solid #d1d0ce; border-radius: 8px;">
+            <table class="table table-sm table-borderless mb-0">
+                <tr>
+                    <th>Created</th>
+                    <td data-timestamp="{{ vm.record.create_timestamp }}"> {{ vm.record.create_timestamp }}</td>
+                </tr>
+                <tr>
+                    <th>Logins</th>
+                    <td>{{ vm.record.login_count }}</td>
+                </tr>
+                <tr>
+                    <th>Last Login</th>
+                    <td data-timestamp="{{ vm.record.current_login_timestamp }}">{{ vm.record.current_login_timestamp }}</td>
+                </tr>
+                <tr>
+                    <th>Login IP</th>
+                    <td>{{ vm.record.current_login_ip }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    {% endif -%}
+    <div>
+        <h2 class="fs-6 mx-1">Update User</h2>
+        <form class="p-3" style="border: 1px solid #d1d0ce; border-radius: 8px;"
+              hx-post="{{ url_for('admin.users_' ~ vm.op ) }}"
+        >
+            {{ vm.form.csrf_token }}
+            {{ vm.form.id() }}
+
+            <div class="row g-3 align-items-end">
+                <div class="col-md-8">
+                    {{ render_input_field(vm.form.email) }}
+                </div>
+                <div class="col-md-4">
+                    {{ render_switch_field(vm.form.active) }}
+                    {{ render_switch_field(vm.form.confirmed) }}
+                </div>
+
+                {{ render_form_field(vm.form.first_name, layout_cls="col-md-12") }}
+                {{ render_form_field(vm.form.last_name, layout_cls="col-md-12") }}
+                {% if vm.op == 'create' -%}
+                {{ render_form_field(vm.form.password, layout_cls="col-md-12") }}
+                {% endif -%}
+                {{ render_choices_field(vm.form.roles, layout_cls="col-md-12") }}
+            </div>
+
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-outline-danger">Save</button>
+                <button type="button" class="btn btn-outline-secondary" _="on click trigger closeModal">Close</button>
+                {% if vm.op == 'update' -%}
+                <button type="button"
+                        class="btn btn-outline-danger"
+                        hx-confirm="Confirm Send Password Reset Instructions"
+                        hx-post="{{ url_for('admin.users_reset', id=vm.form.id.data) }}"
+                        hx-swap="none">
+                    Reset Password
+                </button>
+                {% endif -%}
+            </div>
+        </form>
+    </div>
+</div>

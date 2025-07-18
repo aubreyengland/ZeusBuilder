@@ -1,0 +1,10 @@
+<div id="modal" class="modal" _="on closeModal add .closing then wait for animationend then remove me">
+	<div class="modal-underlay" _="on click trigger closeModal"></div>
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="p-2 p-lg-3" style="overflow-y: auto" _="on keyup[key is 'Escape'] from body trigger closeModal">
+         {{ render_partial(vm.partial_template, vm=vm)}}
+        </div>
+    </div>
+</div>
+
+

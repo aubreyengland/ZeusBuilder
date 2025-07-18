@@ -44,3 +44,4 @@ help_docs/site/*
 /backup    
 /output/*
 *.xlsx
+/tts_input/*

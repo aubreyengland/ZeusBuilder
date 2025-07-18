@@ -1,0 +1,259 @@
+{%- macro render_form_field(field, layout_cls="form-floating mb-1") -%}
+    {%- if field.type in ["BooleanField", "_Option"] -%}
+        <div class="{{ layout_cls }}">
+            {{ render_checkbox_field(field, **kwargs) }}
+        </div>
+
+    {%- elif 'floating' in layout_cls -%}
+        <div class="{{ layout_cls }}">
+            {{ render_input_field_floating(field, **kwargs) }}
+        </div>
+
+    {%- else -%}
+        <div class="{{ layout_cls }}">
+            {{ render_input_field(field, **kwargs) }}
+        </div>
+
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro render_checkbox_field(field, class="form-check-input") -%}
+    {%- if field.errors -%}
+        {%- set class = class + " is-invalid" -%}
+    {%- endif -%}
+
+    <div class="form-check">
+        <label for="{{ field.id }}" class="form-check-label">{{ field.label }}</label>
+        {{ field(class=class, **kwargs)|safe }}
+        {{ render_field_errors(field) }}
+    </div>
+{%- endmacro -%}
+
+{%- macro render_switch_field(field, class="form-check-input") -%}
+    {%- if field.errors -%}
+        {%- set class = class + " is-invalid" -%}
+    {%- endif -%}
+
+    <div class="form-check form-switch">
+        {{ field(class=class, **kwargs)|safe }}
+        <label for="{{ field.id }}" class="form-check-label">{{ field.label }}</label>
+        {{ render_field_errors(field) }}
+    </div>
+{%- endmacro -%}
+
+{%- macro render_choices_field(field, class="form-control js-choices") -%}
+    {%- if field.errors -%}
+        {%- set class = class + " is-invalid" -%}
+    {%- endif -%}
+    {{ field.label(class="form-label") }}
+    {{ field(class=class, **kwargs)|safe }}
+    {{ render_field_errors(field) }}
+{%- endmacro -%}
+
+{%- macro render_input_field(field, class="form-control") -%}
+    {%- if field.errors -%}
+        {%- set class = class + " is-invalid" -%}
+    {%- endif -%}
+    {%- set class_ = field.render_kw.class|default(class) -%}
+    {{ field.label(class="form-label") }}
+    {{ field(class=class_, **kwargs)|safe }}
+    {{ render_field_errors(field) }}
+{%- endmacro -%}
+
+{%- macro render_input_field_floating(field, class="form-control") -%}
+    {%- if field.errors -%}
+        {%- set class = class + " is-invalid" -%}
+    {%- endif -%}
+
+    {%- set placeholder = field.id -%}
+    {{ field(class=class, placeholder=placeholder, **kwargs)|safe }}
+    {{ field.label }}
+    {{ render_field_errors(field) }}
+{%- endmacro -%}
+
+{%- macro render_field_errors(field) -%}
+    {%- if field and field.errors -%}
+        {%- for error in field.errors -%}
+            <div class="invalid-feedback">{{ error }}</div>
+        {%- endfor -%}
+    {%- endif -%}
+{%- endmacro -%}
+
+{#
+    Return an svg element using an icon from bs-icons.svg
+#}
+{%- macro svg_icon(id, size='1em', fill='currentColor') -%}
+    {%- set url = url_for('static', filename='img/bs-icons.svg') + '#' + id -%}
+    <svg width="{{ size }}" height="{{ size }}" fill="{{  fill }}"><use xlink:href="{{ url|safe }}"></use></svg>
+{%- endmacro -%}
+
+{#
+    Render alert boxes from any messages added to the Flask session
+#}
+{%- macro alert_block(position='bottom-right') -%}
+    <div id="alert-container" class="alert-{{ position }}">
+
+        {%- for category, content in get_flashed_messages(with_categories=true) -%}
+
+            {{ flash_alert(content, category) }}
+
+        {%- endfor -%}
+
+    </div>
+{%- endmacro -%}
+
+{#
+    Render a single alert box from a message in the Flask session
+    or an htmx-oob-swap in an htmx response
+#}
+{%- macro flash_alert(content, category='info') -%}
+    <div class="alert alert-dismissible alert-{{ category }} fade show">
+        <div class="alert-icon">
+            {{ svg_icon(category) }}
+        </div>
+        <div class="alert-content"><div>{{ content }}</div></div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+{%- endmacro -%}
+
+
+{#
+    Return an element that will display a spinner durin an htmx request
+    Htmx automatically makes elements with the htmx-indicator class
+    visible during an htmx request (and hides/removes the element after
+    the request).
+#}
+{%- macro htmxSpinner(cls) -%}
+<div role="status"
+     class="htmx-indicator spinner-border spinner-border-sm {{ cls }}">
+  <span class="visually-hidden">Loading...</span>
+</div>
+{%- endmacro -%}
+
+
+{#
+    Return a div with the Zeus image and welcome text.
+    Used by the main index page and login page.
+#}
+{%- macro zeus_banner() -%}
+    <div class="d-flex justify-content-center align-items-center">
+        <img class="d-block" src="{{ url_for('static', filename='img/zeus.jpg') }}" alt=""
+             width="128"
+             height="128">
+        <div class="ms-3">
+            <h1 class="display-5">Welcome to Zeus</h1>
+            <p class="lead text-center">UCaaS & CCaaS Platform Tools</p>
+        </div>
+    </div>
+{%- endmacro -%}
+
+{#
+    Return a details element with a success/fail icon in the summary
+    and any error message in the details
+    result should be one of 'success', 'fail', 'ignore'
+    hyperscript to close popover when click outside of it
+#}
+{%- macro result_icon(result, details) -%}
+{%- if details -%}
+    <details data-popover="right"
+         _="on click from body
+            if I do not contain the target and I match @open
+             remove @open from me
+            end
+        "
+    >
+        <summary class="icon-{{ result|lower }}">{{ svg_icon(result|lower, "1.2em") }}</summary>
+        <div  class="{{ result|lower }}">{{ details }}</div>
+  </details>
+{%- else -%}
+    <div class="icon-{{ result|lower }}">{{ svg_icon(result|lower, "1.2em") }}</div>
+{%- endif -%}
+
+{%- endmacro -%}
+
+
+{% macro boolIcon(val) %}
+    {% if val -%}
+        <span class="text-success">{{ svg_icon("success") }}</span>
+    {% else -%}
+        <span class="text-danger">{{ svg_icon("x-circle-fill") }}</span>
+    {% endif %}
+{% endmacro %}
+
+
+{%- macro event_error_popover(error_text, popover_direction="down") %}
+     <details data-popover="{{ popover_direction }}"
+             _="on click from body
+                if I do not contain the target and I match @open
+                 remove @open from me
+                end
+            ">
+      <summary class="event-summary"
+
+      >{{ error_text|truncate(32) }}
+      </summary>
+      <div>
+          {{ error_text }}
+      </div>
+    </details>
+{%- endmacro %}
+{#
+    Return 'disabled' if the option dict indicates
+    that an active or is required for this option and an
+    active org is not found in the session.
+    This disables sidebar links for browse, import, export
+    if an active org is not selected.
+
+    Args:
+        tool (str): five9, zoom, wxcc
+        opt (dict): Nav option dictionary
+#}
+{%- macro disable_active_org_options(tool, opt) -%}
+    {%- set active_org_required = opt.get('active_org_required') -%}
+    {%- set orgvar = tool ~ "org" -%}
+    {%- if active_org_required and not session.get(orgvar) -%}
+    disabled
+    {%- endif -%}
+{%- endmacro -%}
+
+{#
+    Return 'active' if the current request.path includes the option route.
+
+    This sets the active class on the nav element selected in
+    the sidebar and navbar.
+
+    Args:
+        opt (dict): Nav option dictionary
+#}
+{%- macro is_active() -%}
+    {%- for route in varargs -%}
+        {%- set path = url_for(route) -%}
+        {%- if request.path.startswith(path) -%}
+        active
+        {%- endif -%}
+    {%- endfor -%}
+{%- endmacro -%}
+
+{#
+    Return a select element for a bulk operation row
+    with the option corresponding to the provided value selected.
+
+    Set the provided disabled value as a property on the element
+    so a pre-submission select to be modifiable and the post-submission
+    select to be disabled.
+
+    Args:
+        value (str): Action value from worksheet row
+        disabled (str): 'disabled' or ''
+#}
+{%- macro bulk_action_select(value, disabled, options) -%}
+<select name="action"
+        {{ disabled }}
+        class="badge action-select {{ value|lower }}"
+        _="on change set my.classList.value to `badge action-select ${my.value.toLowerCase()}`"
+    >
+    {% for opt in options -%}
+        <option value="{{ opt|upper }}" {{ 'selected' if value|lower == opt|lower else '' }}>{{ opt|upper }}</option>
+    {% endfor %}
+</select>
+{%- endmacro  -%}

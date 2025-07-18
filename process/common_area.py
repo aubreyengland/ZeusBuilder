@@ -5,6 +5,36 @@ from migrator.utils import find_excel_files
 from migrator.utils import extract_corp_info
 from migrator.utils import format_full_extension
 from migrator.utils import resolve_region
+from migrator.utils import extract_rx_number
+
+
+def extract_rx_common_areas(file_path: str) -> list[StoreCommonArea]:
+    """
+    Extracts common areas from the given file path, specifically for RX numbers.
+    The RX number is expected to be in a JSON file format.
+    """
+    try:
+        rx_number = extract_rx_number(file_path)
+        if rx_number == "Not Available":
+            print(f"RX number not available for {file_path}")
+            return []
+
+        filename = os.path.basename(file_path)
+        corp_number = filename.split()[1]
+
+        # Create a StoreCommonArea object for the RX number
+        ca = StoreCommonArea(
+            corp_number=corp_number,
+            outbound_caller_id=rx_number,
+            extension=rx_number.zfill(3)  # Ensure it's zero-padded to 3 digits
+        )
+
+        return [ca]
+
+    except Exception as e:
+        print(f"Error extracting RX common areas from {file_path}: {e}")
+        return []
+    
 
 def extract_common_areas(file_path: str) -> list[StoreCommonArea]:
     try:
@@ -45,6 +75,7 @@ def extract_common_areas(file_path: str) -> list[StoreCommonArea]:
         print(f"Error extracting common areas from {file_path}: {e}")
         return []
 
+
 def build(input_folder: str) -> pd.DataFrame:
     rows = []
 
@@ -64,6 +95,9 @@ def build(input_folder: str) -> pd.DataFrame:
             print(f"Warning: Region not found for corp number {raw_corp_number}")
 
         site_name = f"CORP {raw_corp_number} {region}".strip()
+        rx_number = extract_rx_number(file_path)
+        
+        caller_id_value = rx_number if rx_number else f"CORP {site.corp_number} MAIN NUMBER"
 
         for ca in extract_common_areas(file_path):
             department = site_name
@@ -92,7 +126,29 @@ def build(input_folder: str) -> pd.DataFrame:
                 "Department": department, 
                 "Cost Center": site_name,
             })
-        
+            if "RX" in ca.name.upper() and rx_number:
+                ignore_row = {
+                    "Action": "UPDATE",
+                    "Name": ca.name,
+                    "Extension": format_full_extension(site.corp_number, ca.extension), 
+                    "New Extension": "",
+                    "Phone Numbers": "",
+                    "Site": site_name,
+                    "Calling Plans": "US/CA Unlimited Calling Plan",
+                    "Caller ID": rx_number,
+                    "Timezone": "America/Chicago",
+                    "Address Line 1": site.parsed_address.address_line1,
+                    "Address Line 2": site.parsed_address.address_line2,
+                    "City": site.parsed_address.city,
+                    "State": site.parsed_address.state,
+                    "ZIP": site.parsed_address.zip_code,
+                    "Country": "US",
+                    "Area Code": "",
+                    "Department": f"{site_name} RX",
+                    "Cost Center": site_name,
+                }
+                rows.append(ignore_row)
+    
         #create a update row for the common areas with "REG" or "STORE PAGE" in the name to block country code
         for ca in extract_common_areas(file_path):
             if "REG" in ca.name.upper():
@@ -103,7 +159,7 @@ def build(input_folder: str) -> pd.DataFrame:
                     "Extension": format_full_extension(site.corp_number, ca.extension),  # write the full extension here
                     "New Extension": "", 
                     "Phone Numbers": "",
-                    "Site": site_name,  # Use the combination of CORP XYZ and REGION
+                    "Site": site_name,  
                     "Calling Plans": "US/CA Unlimited Calling Plan",
                     "Caller ID": f"CORP {site.corp_number} MAIN NUMBER",
                     "Timezone": "America/Chicago",
@@ -124,7 +180,7 @@ def build(input_folder: str) -> pd.DataFrame:
             "Extension": "100",
             "New Extension": "",
             "Phone Numbers": "",
-            "Site": site_name,  # Use the combination of CORP XYZ and REGION
+            "Site": site_name,
             "Calling Plans": "US/CA Unlimited Calling Plan",
             "Caller ID": f"CORP {site.corp_number} MAIN NUMBER",
             "Timezone": "America/Chicago",
@@ -144,7 +200,7 @@ def build(input_folder: str) -> pd.DataFrame:
             "Extension": format_full_extension(site.corp_number, "100"), 
             "New Extension": "",
             "Phone Numbers": "",
-            "Site": site_name,  # Use the combination of CORP XYZ and REGION
+            "Site": site_name,
             "Calling Plans": "US/CA Unlimited Calling Plan",
             "Caller ID": f"CORP {site.corp_number} MAIN NUMBER",
             "Timezone": "America/Chicago",
@@ -168,7 +224,7 @@ def build(input_folder: str) -> pd.DataFrame:
             "Extension": "595",
             "New Extension": "",
             "Phone Numbers": "",
-            "Site": site_name,  # Use the combination of CORP XYZ and REGION
+            "Site": site_name,
             "Calling Plans": "US/CA Unlimited Calling Plan",
             "Caller ID": f"CORP {site.corp_number} MAIN NUMBER",
             "Timezone": "America/Chicago",
@@ -183,7 +239,8 @@ def build(input_folder: str) -> pd.DataFrame:
             "Cost Center": site_name,
         }
         rows.append(prompt_rec_row)
-    
+        
+
 
     df = pd.DataFrame(rows)
     df["Extension"] = df["Extension"].astype(str)

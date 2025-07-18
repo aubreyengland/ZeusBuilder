@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% from "_macros.jinja2" import svg_icon  %}
+
+{% block sidebar %} {% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-center align-items-center">
+        <img class="d-block" src="{{ url_for('static', filename='img/zeus_full_logo.png') }}" alt=""
+             width="500"
+             height="150"><br>
+    </div>
+    <div class="ms-3">
+        <p class="lead text-center">UCaaS & CCaaS Platform Tools</p>
+    </div>
+    <form method="POST" action="{{ url_for('main.index') }}">
+        <div class="row-fluid">
+            <div>
+                <h1 class="display-5">Zeus v<small>{{ version }}</small></h1>
+                  <p style="font-family: Verdana; font-size: 12pt;"> Zeus is an automation tool that provides create, read, update, delete, and export functionality for configuration items within UCaaS and CCaaS tenants. The tool can be utilized by engineers
+to speed up delivery and increase accuracy of deployments. The tools on the Zeus platform minimizes preparation time by utilizing the existing data collection workbooks which results in a decrease in the amount of
+manual data input required and also helps enforce CDW standards and best practices.
+                <h2>Supported Platforms</h2>
+                <p style="font-family: Verdana; font-size: 12pt;">
+                <div class="row">
+                 <div class="col-auto">
+                    <a href="https://www.five9.com/" target="_blank" class="zeus-header fs-2 text-decoration-none">
+                        <img class="d-block" src="{{ url_for('static', filename='img/five9_logo.png') }}" alt="" width="100" height="52">
+                    </a>
+                </div>
+                <div class="col-auto">
+                    <a href="https://www.microsoft.com/en-us/microsoft-teams/" target="_blank" class="zeus-header fs-2 text-decoration-none">
+                        <img class="d-block" src="{{ url_for('static', filename='img/msteams_logo.png') }}" alt="" width="80" height="68">
+                    </a>
+                </div>
+                <div class="col-auto">
+                    <a href="https://www.webex.com/" target="_blank" class="zeus-header fs-2 text-decoration-none">
+                        <img class="d-block" src="{{ url_for('static', filename='img/webex_logo.png') }}" alt="" width="165" height="48">
+                    </a>
+                </div>
+                <div class="col-auto">
+                    <a href="https://www.zoom.us/" target="_blank" class="zeus-header fs-2 text-decoration-none">
+                        <img class="d-block" src="{{ url_for('static', filename='img/zoom_logo.png') }}" alt="" width="105" height="42">
+                    </a>
+                </div>
+                </div>
+
+            </div>
+            <div class="d-grid my-4">
+                <a href="{{ url_for('.index') }}" class="block btn btn-outline-danger"><span class="me-2">{{ svg_icon("house") }}</span><span>Home</span></a>
+            </div>
+        </div>
+    </form>
+    <hr />
+    <div class="footer">
+        <a href="https://www.cdw.com/"><img align="left" src="{{ url_for('static', filename='img/cdw_logo.jpg') }}" title="cdw.com"></a>
+        <p class="footertext">
+            <b>&nbsp;&copy; Copyright CDW {{ now.year }}</b><br>
+            &nbsp;Programmability Team
+        </p>
+    </div><!-- footer -->
+</div>
+{% endblock %}

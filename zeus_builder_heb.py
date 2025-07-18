@@ -55,15 +55,16 @@ def process(input_dir: str, output_path: str) -> None:
             slg_csv = os.path.join(base_dir, f"CORP_{corp}_shared_line_groups.csv")
             slg_df.to_csv(slg_csv, index=False)
 
-            tts_dir = os.path.join(base_dir, f"CORP_{corp}_TTS_Prompts")
-            tts_prompt.generate_tts_files(input_dir, tts_dir)
+            tts_output_dir = os.path.join(os.getcwd(), "tts_input")
+            os.makedirs(tts_output_dir, exist_ok=True)
+            tts_prompt.generate_tts_files(input_dir, tts_output_dir)
 
             lk_xlsx = os.path.join(base_dir, f"CORP_{corp}_Line_Keys.xlsx")
 
             print(f"Line Keys   → {lk_xlsx}")
             print(f"Call Queues → {cq_csv}")
             print(f"Shared Line Groups   → {slg_csv}")
-            print(f"TTS prompts → {tts_dir}")
+            print(f"TTS prompts → {tts_output_dir}")
 
 
 def main():

@@ -1,0 +1,16 @@
+{% from "_macros.jinja2" import render_form_field, render_choices_field %}
+
+<div hx-target="this" hx-swap="outerHTML" class="modal-body" style="overflow-y: auto; min-height: 160px;">
+    <h1 class="fs-6 mx-1">{{ vm.op|title }} Organization</h1>
+    <form class="p-3" style="border: 1px solid #d1d0ce; border-radius: 8px;"
+          hx-post="{{ url_for(tool ~ '.orgs_' ~ vm.op) }}">
+        {{ vm.form.csrf_token }}
+        {{ vm.form.id() }}
+        {{ render_form_field(vm.form.name, layout_cls="mt-2") }}
+        {{ render_form_field(vm.form.oauth_app, layout_cls="mt-2") }}
+        <div class="form-group mt-3">
+            <button type="submit" class="btn btn-outline-danger">Save</button>
+            <a type="button" class="btn btn-outline-secondary" href="{{ url_for(tool ~ '.orgs') }}">Cancel</a>
+        </div>
+    </form>
+</div>

@@ -92,12 +92,12 @@ def extract_zoom_menu_targets(file_path: str) -> dict:
             targets[f"Key {key_digit_part} Target"] = target_part
 
         if not targets:
-            print(f"⚠️ No valid targets extracted from {file_path}")
+            print(f"No valid AR targets extracted from {file_path}")
 
         return targets
 
     except Exception as e:
-        print(f"⚠️ Error extracting zoom menu targets from {file_path}: {e}")
+        print(f"Error extracting zoom menu targets from {file_path}: {e}")
         return {}
 
 def build_ar_rows(corp_number: str, site_name: str, file_path: str) -> list[dict]:
@@ -112,11 +112,12 @@ def build_ar_rows(corp_number: str, site_name: str, file_path: str) -> list[dict
         "Name": f"{site_name} - SPANISH",
         "Site": site_name,
         "Extension": "0002",
-        "Audio File": f"{site_name} SPANISH",
         "Timezone": "America/Chicago",
         "Phone Numbers": "",
         "Prompt Repeat": 3,
         "Prompt Language": "es-US",
+        "Cost Center": f"{site_name}",
+        "Department": f"{site_name} AR",
     }
 
     for key, value in DEFAULT_SPANISH_KEYS.items():
@@ -144,11 +145,12 @@ def build_ar_rows(corp_number: str, site_name: str, file_path: str) -> list[dict
         "Name": f"{site_name} - ENGLISH",
         "Site": site_name,
         "Extension": format_full_extension(corp_number, "001"),
-        "Audio File": f"{site_name} ENGLISH",
         "Timezone": "America/Chicago",
         "Phone Numbers": f"{site_name} MAIN NUMBER",
         "Prompt Repeat": 3,
         "Prompt Language": "en-US",
+        "Cost Center": f"{site_name}",
+        "Department": f"{site_name} AR",
     }
 
     # If "Jump to Spanish Day AA" is present, set Key 1 Action/Target accordingly for English keys only

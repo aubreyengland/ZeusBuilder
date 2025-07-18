@@ -1,0 +1,101 @@
+{% extends "tool/tool_base.html" %}
+{% from '_macros.jinja2' import svg_icon %}
+{% set upload_view = tool ~ '.'  ~ 'bulk' %}
+{% set export_view = tool ~ '.'  ~ 'export' %}
+{% set template_view = tool ~ '.'  ~ 'bulk_wb_template' %}
+
+{% block tool_content %}
+    <div id="bulk-container" class="mt-5 d-flex justify-content-center">
+    <div class="col-sm-6">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="fs-3">Five9 Bulk Import</h1>
+                <form name="bulk-upload-form"
+                      class="upload-form"
+                      hx-post="{{ url_for(upload_view) }}"
+                      hx-target="#bulk-container"
+                      hx-swap="outerHTML"
+                      hx-encoding="multipart/form-data"
+                >
+                    <div id="workbook-upload" class="upload-input my-4"
+                         _="on dragover or dragenter halt the event
+                             then add .is-dragover to #workbook-upload
+                            on dragleave or dragend remove .is-dragover from #workbook-upload
+                            on drop halt the event
+                             then remove .is-dragover from #workbook-upload
+                             then set #workbook.files to event.dataTransfer.files
+                             then set #workbook-label.textContent to  #workbook.files[0].name
+                             then add .upload-filename to #workbook-label
+                             then remove .d-none from #upload-submit
+                         "
+                    >
+                        {{ svg_icon("spreadsheet", size='72px') }}
+                        <div id="workbook-label">Drag or
+                            <label for="workbook" class="fw-bold">select</label>
+                            a Five9 provisioning workbook
+                        </div>
+                        <input id="workbook"
+                               name="workbook"
+                               type="file"
+                               accept=".xlsx"
+                               required
+                               class="form-control"
+                               _="on change set #workbook-label.textContent to #workbook.files[0].name
+                                   then add .upload-filename to #workbook-label
+                                   then remove .d-none from #upload-submit
+                               "
+                        >
+                    </div>
+                    <div id="prompts-upload" class="upload-input my-4"
+                         _="on dragover or dragenter halt the event
+                             then add .is-dragover to me
+                            on dragleave or dragend remove .is-dragover from me
+                            on drop halt the event
+                             then remove .is-dragover from me
+                             then set #prompts.files to event.dataTransfer.files
+                             then set #prompts-label.textContent to #prompts.files[0].name
+                             then add .upload-filename to #prompts-label
+                           "
+                    >
+                        {{ svg_icon("zipfile", size='72px') }}
+                        <div id="prompts-label">Drag or
+                            <label for="prompts" class="upload-form-link">select</label>
+                            a prompts zip file (optional)
+                        </div>
+                        <input id="prompts"
+                               name="prompts"
+                               type="file"
+                               accept=".zip"
+                               class="form-control"
+                               _="on change set #prompts-label.textContent to #prompts.files[0].name
+                                  then add .upload-filename to #prompts-label
+                               "
+                        >
+                    </div>
+                    <div class="d-grid my-4">
+                        <button id="upload-submit" class="block btn btn-outline-danger d-none">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+                    <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Getting Started?</h5>
+                    <p class="card-text">A properly-formatted template can be obtained in two ways:</p>
+                    <ul>
+                        <li>Generate an <a href="{{ url_for(export_view) }}" class="upload-form-link">Export
+                            Workbook</a> or
+                        </li>
+                        <li>Download an empty <a href="{{ url_for(template_view) }}" class="upload-form-link">Bulk
+                            Workbook Template</a>
+                        </li>
+                    </ul>
+                    <p>See <a href="{{ help_url|default('/help/') }}" target="_blank" class="upload-form-link">
+                        Zeus Help</a> for additional details.
+                    </p>
+                </div>
+            </div>
+    </div>
+
+</div>
+{% endblock %}

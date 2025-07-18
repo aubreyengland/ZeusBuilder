@@ -1,0 +1,26 @@
+{% extends "admin/admin_base.html" %}
+{% from '_macros.jinja2' import svg_icon %}
+
+{% block admin_content %}
+
+    <div class="mt-3 text-center">
+        <span class="display-4">Welcome </span>
+        <span class="display-6 fst-italic ms-2">{{ current_user.display_name }}</span>
+    </div>
+
+    <div class="m-auto col-xl-8 row row-cols-1 row-cols-lg-2 mt-5">
+        {% for opt in options %}
+            <div class="col mb-4">
+                <a class="card h-100" href="{{ url_for(opt.route) }}">
+                    <div class="card-body">
+                        <h3 class="card-title">
+                              <span>{{ svg_icon(opt.name) }} {{ opt.title }}</span>
+                        </h3>
+                        <p class="card-text">{{ opt.text }}</p>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock admin_content %}

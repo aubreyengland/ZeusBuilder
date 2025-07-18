@@ -1,0 +1,14 @@
+{% extends "security/sec_base.html" %}
+{% from "_macros.jinja2" import render_form_field, render_field_errors %}
+
+{% set title = _fsdomain('Resend Confirmation') %}
+
+{% block auth_form %}
+
+    <form action="{{ url_for_security('send_confirmation') }}" method="POST" name="send_confirmation_form">
+        {{ send_confirmation_form.hidden_tag() }}
+        {{ render_form_field(send_confirmation_form.email) }}
+        {{ send_confirmation_form.submit(class="w-100 mt-3 btn btn-danger")|safe }}
+    </form>
+
+{% endblock %}

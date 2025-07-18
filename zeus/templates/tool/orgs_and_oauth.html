@@ -1,0 +1,46 @@
+{% extends "tool/tool_base.html" %}
+{#
+    Renders a tab list with an Organizations tab for org management and an
+    OAuth tab for user-specific OAuth app management
+#}
+
+{% block tool_content %}
+    <div class="mx-2 mx-lg-4 mt-5">
+        <div>{{ request.history }}</div>
+        <div class="container py-3 px-3 px-xl-5 bg-white" style="border-radius: 6px;">
+            <ul class="nav nav-tabs nav-justified" id="org-tablist" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="tab{{ ' active' if vm.active_tab != 'oauth' else '' }}" id="org-orgs-tab"
+                            data-bs-toggle="tab" data-bs-target="#org-orgs-pane" type="button" role="tab"
+                            aria-controls="org-orgs-tab-pane" aria-selected="true">
+                        Organizations
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="tab{{ ' active' if vm.active_tab == 'oauth' else '' }}" id="org-oauth-tab"
+                            data-bs-toggle="tab" data-bs-target="#org-oauth-pane" type="button" role="tab"
+                            aria-controls="org-oauth-pane" aria-selected="false">
+                        OAuth Apps
+                    </button>
+                </li>
+            </ul>
+            <div class="tab-content" id="org-tab-content">
+                <div class="tab-pane fade{{ ' show active' if vm.active_tab != 'oauth' else '' }}" id="org-orgs-pane"
+                     role="tabpanel" aria-labelledby="org-orgs-tab" tabindex="0">
+                    <div class="mt-3 d-flex flex-column gap-3">
+                        {% include 'tool/orgs_table.html' %}
+                    </div>
+
+                </div>
+                <div class="tab-pane fade{{ ' show active' if vm.active_tab == 'oauth' else '' }}" id="org-oauth-pane"
+                     role="tabpanel" aria-labelledby="org-oauth-tab" tabindex="0">
+                    <div class="mt-3 d-flex flex-column gap-3">
+                        {% include 'tool/oauth_table.html' %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock tool_content %}

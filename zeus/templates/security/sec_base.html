@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% from "_macros.jinja2" import zeus_banner  %}
+
+{% block content %}
+
+    <div class="container mt-5">
+
+        {{ zeus_banner() }}
+
+        <div class="row justify-content-center mt-5">
+
+            <div class="col-lg-4 card">
+                <div class="card-body">
+
+                    {% block auth_form %} {% endblock %}
+
+                    <ul class="list-inline text-center mt-3">
+                        {% block auth_links %} {% endblock %}
+                    </ul>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+{% endblock %}

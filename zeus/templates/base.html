@@ -1,0 +1,55 @@
+{% from "_macros.jinja2" import alert_block %}
+
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    {% block head %}
+        <title>CDW - Zeus</title>
+        <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon">
+        <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    {% endblock %}
+</head>
+
+    <body>
+
+    <div class="d-flex min-vh-100">
+        {% block body %}
+
+            {% block sidebar %}{% endblock sidebar %}
+
+        <div class="content-wrapper">
+            {% block navbar %}
+                {% include 'navbar.html' %}
+            {% endblock %}
+
+
+
+           {% block content %}{% endblock %}
+            {#    <footer class="footer mt-auto p-4">#}
+            {#        <div class="container-fluid">#}
+            {#            <p class="text-muted">CDW &copy; 2022</p>#}
+            {#        </div>#}
+            {#    </footer>#}
+        </div>
+
+        {% endblock %}
+    {% block alerts %}
+        {{ alert_block('bottom-right') }}
+    {% endblock alerts %}
+
+</div>
+
+    {% block scripts %}
+        <script src="{{ url_for('static', filename='js/lib/bootstrap5.2.0.bundle.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/lib/htmx1.9.12.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/lib/hyperscript0.9.7.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/lib/simple-datatables3.2.2.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/lib/choices10.1.0.min.js') }}"></script>
+        <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% endblock %}
+
+</body>
+</html>

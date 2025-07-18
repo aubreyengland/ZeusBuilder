@@ -1,0 +1,16 @@
+{% from "_macros.jinja2" import svg_icon %}
+
+<div class="alert alert-dismissible alert-{{ vm.alert_type }} fade show">
+    <div class="alert-icon">{{ svg_icon(vm.alert_type) }}</div>
+    <div class="alert-content">
+        <div>
+            {{  vm.summary }}
+            {% if vm.link %}
+            <div>
+                <a href="{{ vm.link.url }}" class="alert-link">{{ vm.link.text }}</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>

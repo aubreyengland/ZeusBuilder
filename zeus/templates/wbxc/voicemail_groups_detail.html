@@ -1,0 +1,130 @@
+<div class="modal-body" style="overflow-y: auto; min-height: 160px;">
+    {%- if vm.data %}
+        <h2 class="fs-4">Voicemail Group Details</h2>
+        <table class="table">
+            <tr>
+                <th scope="col">Name</th>
+                <td>{{ vm.data.name|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Location</th>
+                <td>{{ vm.data.location|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Phone Number</th>
+                <td>{{ vm.data.phoneNumber|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Extension</th>
+                <td>{{ vm.data.extension|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Enabled</th>
+                <td>{{ vm.data.enabled|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">First Name</th>
+                <td>{{ vm.data.firstName|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Last Name</th>
+                <td>{{ vm.data.lastName|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Language</th>
+                <td>{{ vm.data.languageCode|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Greeting</th>
+                <td>{{ vm.data.greeting|default('--') }}</td>
+            </tr>
+        </table>
+
+        <h2 class="fs-6">Email</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" class="table-light">Enabled</th>
+                <th scope="col" class="table-light">Email Address</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{{ vm.data.emailCopyOfMessage_enabled|default('--') }}</td>
+                <td>{{ vm.data.emailCopyOfMessage_emailId|default('--') }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h2 class="fs-6">Message Storage</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" class="table-light">Storage Type</th>
+                <th scope="col" class="table-light">Storage Email</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{{ vm.data.messageStorage_storageType|default('--') }}</td>
+                <td>{{ vm.data.messageStorage_externalEmail|default('--') }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h2 class="fs-6">Notifications</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" class="table-light">Enabled</th>
+                <th scope="col" class="table-light">Destination</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{{ vm.data.notifications_enabled|default('--') }}</td>
+                <td>{{ vm.data.notifications_destination|default('--') }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h2 class="fs-6">Zero Out</h2>
+        <table class="table">
+
+            <thead>
+            <tr>
+                <th scope="col" class="table-light">Enabled</th>
+                <th scope="col" class="table-light">Destination</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{{ vm.data.transferToNumber_enabled|default('--') }}</td>
+                <td>{{ vm.data.transferToNumber_destination|default('--') }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h2 class="fs-6">Fax Messages</h2>
+        <table class="table">
+
+            <thead>
+            <tr>
+                <th scope="col" class="table-light">Enabled</th>
+                <th scope="col" class="table-light">Phone Number</th>
+                <th scope="col" class="table-light">Extension</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{{ vm.data.faxMessage_enabled|default('--') }}</td>
+                <td>{{ vm.data.faxMessage_phoneNumber|default('--') }}</td>
+                <td>{{ vm.data.faxMessage_extension|default('--') }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+    {%- endif %}
+</div>

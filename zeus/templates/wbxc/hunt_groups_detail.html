@@ -1,0 +1,180 @@
+<div class="modal-body" style="overflow-y: auto; min-height: 160px;">
+    {%- if vm.data %}
+        <h2 class="fs-4">Hunt Group Details</h2>
+        <table class="table">
+            <tr>
+                <th scope="col">Name</th>
+                <td>{{ vm.data.name|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Type</th>
+                <td>{{ vm.data.hunt_policy|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Timezone</th>
+                <td>{{ vm.data.timeZone|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Language</th>
+                <td>{{ vm.data.languageCode|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Advance When Busy</th>
+                <td>{{ vm.data.advance_when_busy|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Advance To Next Agent</th>
+                <td>{{ vm.data.advance_to_next_agent|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Hunt Busy Enabled</th>
+                <td>{{ vm.data.hunt_busy_allow_users|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Hunt Busy User Control</th>
+                <td>{{ vm.data.hunt_busy_enabled|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Allow Number As Caller ID</th>
+                <td>{{ vm.data.allow_number_as_clid|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Distinctive Ring</th>
+                <td>{{ vm.data.distinctiveRing|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">First Name</th>
+                <td>{{ vm.data.firstName|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col">Last Name</th>
+                <td>{{ vm.data.lastName|default('--') }}</td>
+            </tr>
+        </table>
+
+        <h2 class="fs-6">Hunt Advancement</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" class="table-light">Advance When Busy</th>
+                <th scope="col" class="table-light">Advance To Next Agent</th>
+                <th scope="col" class="table-light">No. Of Rings</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{{ vm.data.advance_when_busy|default('--') }}</td>
+                <td>{{ vm.data.advance_to_next_agent|default('--') }}</td>
+                <td>{{ vm.data.advance_after_rings|default('--') }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+
+        <h2 class="fs-6">Forward No Answer</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" class="table-light">Enabled</th>
+                <th scope="col" class="table-light">No. of Rings</th>
+                <th scope="col" class="table-light">Destination</th>
+                <th scope="col" class="table-light">Send to VM</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{{ vm.data.forward_na_enabled|default('--') }}</td>
+                <td>{{ vm.data.forward_na_rings|default('--') }}</td>
+                <td>{{ vm.data.forward_na_destination|default('--') }}</td>
+                <td>{{ vm.data.forward_na_vm|default('--') }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h2 class="fs-6">Forward Busy</h2>
+        <table class="table">
+
+            <thead>
+            <tr>
+                <th scope="col" class="table-light">Enabled</th>
+                <th scope="col" class="table-light">Destination</th>
+                <th scope="col" class="table-light">Send to VM</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{{ vm.data.forward_busy_enabled|default('--') }}</td>
+                <td>{{ vm.data.forward_busy_destination|default('--') }}</td>
+                <td>{{ vm.data.forward_busy_vm|default('--') }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h2 class="fs-6">Forward Unreachable</h2>
+        <table class="table">
+
+            <thead>
+            <tr>
+                <th scope="col" class="table-light">Enabled</th>
+                <th scope="col" class="table-light">Destination</th>
+                <th scope="col" class="table-light">Send to VM</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{{ vm.data.forward_ur_enabled|default('--') }}</td>
+                <td>{{ vm.data.forward_ur_destination|default('--') }}</td>
+                <td>{{ vm.data.forward_ur_vm|default('--') }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+
+        <h2 class="fs-6">Alternate Numbers</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" class="table-light">Number</th>
+                <th scope="col" class="table-light">Ring Pattern</th>
+            </tr>
+            </thead>
+            <tbody>
+            {%- for row in vm.data.alternate_number_details|default([]) %}
+                <tr>
+                    <td>{{ row.phoneNumber|default('--') }}</td>
+                    <td>{{ row.ringPattern|default('--') }}</td>
+                </tr>
+            {%- endfor %}
+            </tbody>
+        </table>
+
+        <h2 class="fs-6">Agents</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" class="table-light">First Name</th>
+                <th scope="col" class="table-light">Last Name</th>
+                <th scope="col" class="table-light">Type</th>
+                <th scope="col" class="table-light">Phone Number</th>
+                <th scope="col" class="table-light">Extension</th>
+                <th scope="col" class="table-light">Weight</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in vm.data.agents|default([]) %}
+                <tr>
+                    <td>{{ row.firstName|default('--') }}</td>
+                    <td>{{ row.lastName|default('--') }}</td>
+                    <td>{{ row.type|default('--') }}</td>
+                    <td>{{ row.phoneNumber|default('--') }}</td>
+                    <td>{{ row.extension|default('--') }}</td>
+                    <td>{{ row.weight|default('--') }}</td>
+                </tr>
+            {%- endfor %}
+            </tbody>
+        </table>
+    {%- endif %}
+</div>

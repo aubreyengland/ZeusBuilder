@@ -1,0 +1,75 @@
+{% extends "tool/tool_base.html" %}
+
+{% block tool_content %}
+<div class="mx-2 mx-lg-4 mt-5">
+<div class="container-fluid py-3 px-3 px-xl-5 bg-white" style="border-radius: 6px;">
+    <!-- Start Browse tab list for each data type -->
+    <nav class="content-nav">
+         <div class="nav nav-tabs border-0" id="browse-tablist" role="tablist">
+            {#
+                Home tab is not displayed but must be present with active class
+                other home content is not hidden when tabs are clicked in bs 5.2
+            #}
+            <button id="browse-home-tab"
+                    class="d-none tab active"
+                    data-bs-toggle="tab"
+                    data-bs-target="#browse-home-tabpanel"
+                    type="button" role="tab"
+                    aria-selected="true">
+                Home
+            </button>
+            {% for data_type, label in data_types.items() %}
+                <button id="browse-{{ data_type }}-tab"
+                        class="tab pt-0 pb-1"
+                        data-bs-toggle="tab"
+                        data-bs-target="#browse-{{ data_type }}-tabpanel"
+                        type="button" role="tab"
+                        hx-trigger="click once"
+                        hx-indicator="#page-indicator"
+                        hx-target="#browse-{{ data_type }}-tabpanel"
+                        hx-post="{{ url_for(tool ~ '.' ~ 'browse') }}"
+                        hx-vals='{"data_type": "{{ data_type }}"}'
+                        aria-selected="false">
+                    {{ label }}
+                </button>
+            {% endfor %}
+        </div>
+    </nav>
+    <!-- End Browse tab list -->
+    <hr class="my-2">
+    <!-- Start Browse tab panels for each data type -->
+    <div class="tab-content" id="browse-tabcontent">
+        {#
+            Home tab is active when page loads and visible until another tab is selected
+        #}
+        <div id="browse-home-tabpanel"
+             role="tabpanel"
+             aria-labelledby="browse-home-tab"
+             class="tab-pane fade show active">
+            <div class="m-auto p-4 col-sm-8">
+                <h1 class="fs-3 pb-3">Browse the {{ title }} Organization</h1>
+                <p class="card-text">View existing objects in the selected {{ title }} organization by
+                    selecting the tabs above.</p>
+            </div>
+        </div>
+
+        {#
+            Create a panel for each data type that will be hidden and empty until the associated
+            tab is selected, at which point the content will be rendered through the htmx response
+        #}
+
+        {% for data_type in data_types  %}
+
+            <div id="browse-{{ data_type }}-tabpanel"
+                 class="tab-pane fade"
+                 role="tabpanel"
+                 aria-labelledby="browse-{{ data_type }}-tab">
+            </div>
+
+        {% endfor %}
+
+    </div>
+    <!-- End Browse tab panels -->
+</div>
+</div>
+{% endblock %}

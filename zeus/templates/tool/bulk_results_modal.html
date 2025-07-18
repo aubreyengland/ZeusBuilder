@@ -1,0 +1,62 @@
+{% from '_macros.jinja2' import event_error_popover, svg_icon -%}
+
+{% set alert_type = 'fail' if vm.failure_count else 'success' -%}
+<div id="bulk-{{ vm.data_type }}-alert" hx-swap-oob="true">
+    <div role="alert" class="alert fade show text-center bulk-alert bulk-alert-{{ alert_type }} alert-dismissible">
+        <div>Processing complete{{ ' with errors.' if vm.failure_count else '.' }}
+            <a href="#" class="alert-link"
+               _="on click add .d-none to .modal then remove .d-none from #modal-{{ vm.data_type }}-results">Details</a>
+        </div>
+        <button type="button" class="btn-close" aria-label="Close" data-bs-dismiss="alert"></button>
+    </div>
+</div>
+
+<div id="modal-{{ vm.data_type }}-results" class="modal d-none"
+     _="on closeModal add .closing then wait for animationend then remove .closing then add .d-none to me">
+    <div class="modal-underlay" _="on click trigger closeModal"></div>
+    <div class="modal-content" _="on keyup[key is 'Escape'] from body trigger closeModal">
+        <div class="modal-header">
+            <h5 class="modal-title">{{ vm.title }} Results</h5>
+        </div>
+        <div class="modal-body" style="overflow-y: auto; min-height: 160px;">
+            <table id="bulk-results" class="table table-hover table-sm">
+                {% if vm.table.rows %}
+                    <thead>
+                    <tr>
+                        <th scope="col">Action</th>
+                        <th scope="col">Object</th>
+                        <th scope="col">Result</th>
+                        <th scope="col">Error</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in vm.table.rows %}
+                        <tr>
+                            <td><span class="badge {{ row['action']|lower }}">{{ row['action'] }}</span></td>
+                            <td>{{ row['name'] }}</td>
+                            <td><span class="badge bg-{{ row['result']|lower }}">{{ row['result'] }}</span></td>
+                            {%- if row['error'] -%}
+                                <td>
+                                    {{ event_error_popover(row['error']) }}
+                                </td>
+                            {%- else -%}
+                                <td></td>
+                            {%- endif -%}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                {% endif %}
+            </table>
+        </div>
+        <div class="d-flex gap-2 justify-content-end">
+            <form method="POST" action="{{ url_for(tool ~ '.' 'bulk_results', data_type=vm.data_type, job_id=vm.job_id) }}">
+                <button class="btn btn-outline-primary">
+                    <span class="me-2">Save Results</span><span>{{ svg_icon("download") }}</span>
+                </button>
+            </form>
+            <button type="button" class="btn btn-outline-primary" _="on click trigger closeModal">Close</button>
+        </div>
+    </div>
+
+
+</div>

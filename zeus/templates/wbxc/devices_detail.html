@@ -1,0 +1,138 @@
+<div class="modal-body" style="overflow-y: auto; min-height: 160px;">
+    <h2 class="fs-4">Device Details</h2>
+    {%- if vm.data %}
+        <table class="table table-bordered">
+            <tbody>
+            <tr>
+                <th scope="col" class="table-light">MAC Address</th>
+                <td>{{ vm.data.mac|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col" class="table-light">Model</th>
+                <td>{{ vm.data.model|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col" class="table-light">Assignee</th>
+                <td>{{ vm.data.assignee|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col" class="table-light">Expansion Module</th>
+                <td>{{ vm.data.expansion_module|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col" class="table-light">Custom Layout</th>
+                <td>{{ vm.data.custom_layout|default('--') }}</td>
+            </tr>
+            <tr>
+                <th scope="col" class="table-light">Tags</th>
+                <td>{{ vm.data.tags|default('--') }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h2 class="fs-5">Lines</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" class="table-light">#</th>
+                <th scope="col" class="table-light">Type</th>
+                <th scope="col" class="table-light">Number</th>
+                <th scope="col" class="table-light">Label</th>
+                <th scope="col" class="table-light">All Dev. Decline</th>
+                <th scope="col" class="table-light">Hotline</th>
+                <th scope="col" class="table-light">T.38</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in vm.data.lines|default([]) %}
+                <tr>
+                    <td>{{ row.idx|default('--') }}</td>
+                    <td>{{ row.type|default('--') }}</td>
+                    <td>{{ row.number|default('--') }}</td>
+                    <td>{{ row.label|default('--') }}</td>
+                    <td>{{ row.allow_decline|default('--') }}</td>
+                    <td>{{ 'N' if row.hotline_enabled == 'N' else row.hotline_destination }}</td>
+                    <td>{{ row.t38_enabled|default('--') }}</td>
+                </tr>
+            {%- endfor %}
+            </tbody>
+        </table>
+
+        {% set settings = vm.data.settings|default({}) -%}
+        {%- if settings %}
+            <h2 class="fs-5">Settings</h2>
+            <table class="table table-bordered">
+                <tbody>
+                <tr>
+                    <th scope="col" class="table-light">Custom Enabled</th>
+                    <td>{{ settings.custom_enabled|default('--') }}</td>
+                </tr>
+                <tr>
+                    <th scope="col" class="table-light">8021x</th>
+                    <td>{{ settings.pnac_enabled|default('--') }}</td>
+                </tr>
+                <tr>
+                    <th scope="col" class="table-light">Active Call Focus</th>
+                    <td>{{ settings.active_call_focus|default('--') }}</td>
+                </tr>
+                <tr>
+                    <th scope="col" class="table-light">Calls Per Line</th>
+                    <td>{{ settings.calls_per_line|default('--') }}</td>
+                </tr>
+                <tr>
+                    <th scope="col" class="table-light">CDP</th>
+                    <td>{{ settings.cdp_enabled|default('--') }}</td>
+                </tr>
+                <tr>
+                    <th scope="col" class="table-light">LLDP</th>
+                    <td>{{ settings.lldp_enabled|default('--') }}</td>
+                </tr>
+                <tr>
+                    <th scope="col" class="table-light">DND</th>
+                    <td>{{ settings.dnd_enabled|default('--') }}</td>
+                </tr>
+                <tr>
+                    <th scope="col" class="table-light">Monitor List</th>
+                    <td>{{ settings.monitor_list_enabled|default('--') }}</td>
+                </tr>
+                <tr>
+                    <th scope="col" class="table-light">Web Access</th>
+                    <td>{{ settings.web_access|default('--') }}</td>
+                </tr>
+                <tr>
+                    <th scope="col" class="table-light">Enhanced Multicast Enabled</th>
+                    <td>{{ settings.enhanced_mcast_enabled|default('--') }}</td>
+                </tr>
+                <tr>
+                    <th scope="col" class="table-light">Enhanced Multicast URL</th>
+                    <td>{{ settings.enhanced_mcast_url|default('--') }}</td>
+                </tr>
+                </tbody>
+            </table>
+
+            {%- if settings.enhanced_mcast_destinations|default([]) -%}
+                <h2 class="fs-5">Enhanced Multicast Destinations</h2>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col" class="table-light">#</th>
+                        <th scope="col" class="table-light">Destination</th>
+                        <th scope="col" class="table-light">XMLApp</th>
+                        <th scope="col" class="table-light">Timer</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in settings.enhanced_mcast_destinations|default([]) %}
+                        <tr>
+                            <td>{{ row.idx|default('--') }}</td>
+                            <td>{{ row.destination|default('--') }}</td>
+                            <td>{{ row.xmlapp|default('--') }}</td>
+                            <td>{{ row.timer|default('--') }}</td>
+                        </tr>
+                    {%- endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        {% endif %}
+    {%- endif %}
+</div>

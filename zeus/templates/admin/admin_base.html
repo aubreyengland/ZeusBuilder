@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "_macros.jinja2" import zeus_brand, is_active, svg_icon %}
+
+{% block sidebar %}
+    <!-- Start Admin Sidebar -->
+    <div class="sidebar col-sm-3 col-lg-2">
+
+        <div class="d-flex flex-column gap-4">
+
+            <div class="text-center">
+                <a href="{{ url_for('main.index') }}"
+                   class="zeus-header fs-2 text-decoration-none">
+                   <img class="zeus-image" src="{{ url_for('static', filename='img/zeus_white.png') }}" alt=""/>
+                </a>
+            </div>
+
+            <div class="text-center zeus-header fs-5 p-3"><span>{{ svg_icon('tools') }}</span>Administration</div>
+          
+           <nav class="nav sidebar-nav flex-column border-top py-3">
+              {% for opt in options %}
+              <a class="nav-link {{ is_active(opt.route) }}" href="{{ url_for(opt.route) }}">
+                  <span>{{ svg_icon(opt.name) }} {{ opt.title }}</span>
+              </a>
+              {% endfor %}
+            </nav>
+        </div>
+    </div>
+<!-- End Admin Sidebar -->
+{% endblock sidebar %}
+
+{% block content %}
+
+<main class="container my-5 px-3 px-md-5 fade-in">
+    <!-- Start admin Content -->
+    {% block admin_content %} {% endblock %}
+
+    <!-- End admin Content -->
+    {% block indicator %}
+
+        <div id="page-indicator" class="htmx-indicator spinner-border text-dark spinner-page"
+             style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+
+        {% endblock indicator %}
+    </main>
+{% endblock content %}

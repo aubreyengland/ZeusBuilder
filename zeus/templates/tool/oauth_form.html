@@ -1,0 +1,24 @@
+{% from "_macros.jinja2" import render_form_field, render_choices_field %}
+
+<div hx-target="this" hx-swap="outerHTML"  class="modal-body" style="overflow-y: auto; min-height: 160px;">
+    <h1 class="fs-6 mx-1">{{ vm.op|title }} OAuth App</h1>
+        <form class="p-3" style="border: 1px solid #d1d0ce; border-radius: 8px;"
+                hx-post="{{url_for(tool ~ '.orgs_oauth_' ~ vm.op)}}">
+            {{ vm.form.csrf_token }}
+            {{ vm.form.id() }}
+            {{ render_form_field(vm.form.name, layout_cls="col-md-12") }}
+            {{ render_form_field(vm.form.client_id, layout_cls="col-md-12") }}
+            {{ render_form_field(vm.form.client_secret, layout_cls="col-md-12") }}
+            {{ render_form_field(vm.form.redirect_uri, layout_cls="col-md-12") }}
+            {{ render_form_field(vm.form.api_endpoint, layout_cls="col-md-12") }}
+            {{ render_form_field(vm.form.auth_endpoint, layout_cls="col-md-12") }}
+            {{ render_form_field(vm.form.token_endpoint, layout_cls="col-md-12") }}
+            {% if vm.form.scopes is defined %}
+                {{ render_choices_field(vm.form.scopes, layout_cls="col-md-12") }}
+            {% endif %}
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-outline-danger">Save</button>
+                <a type="button" class="btn btn-outline-secondary" href="{{ url_for(tool ~ '.orgs', active='oauth') }}">Cancel</a>
+            </div>
+        </form>
+</div>

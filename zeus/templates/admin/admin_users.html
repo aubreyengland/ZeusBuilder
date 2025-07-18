@@ -1,0 +1,102 @@
+{% extends "admin/admin_base.html" %}
+{% from "_macros.jinja2" import boolIcon -%}
+
+{% block admin_content %}
+    <div class="mx-auto py-3 px-3 px-xl-5 bg-white" style="border-radius: 6px;">
+        <div class="d-flex justify-content-between px-2 py-3">
+            <div class="flex-grow-1"><h1 class="fs-3">Manage Users</h1></div>
+            <div>
+                <button type="button"
+                        class="btn btn-outline-danger"
+                        hx-target="body"
+                        hx-swap="beforeend"
+                        hx-get="{{ url_for('admin.users_form') }}"
+                >{{ svg_icon("plus", size="1.2em") }} New
+                </button>
+            </div>
+        </div>
+        <div class="table-responsive-xxl">
+            <table id="users-table" class="table table-hover align-middle">
+                <thead>
+                <tr>
+                    <th class="d-none" scope="col">id</th>
+                    <th scope="col" class="">Email</th>
+                    <th data-format="UNIX" data-type="date" scope="col">Login Time</th>
+                    <th class="icon text-center" scope="col" data-sortable="false">Enabled</th>
+                    <th class="icon text-center" scope="col" data-sortable="false">Confirmed</th>
+                    <th class="icon text-center" scope="col" data-sortable="false">Admin</th>
+                    <th style="width: 5%;" scope="col" data-sortable="false"></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for user in vm.rows %}
+                    {% if user.current_login_at %}
+                        {% set current_login = user.current_login_at.timestamp() %}
+                    {% else %}
+                        {% set current_login = '' %}
+                    {% endif %}
+                    {% if user.confirmed_at %}
+                        {% set is_confirmed = True %}
+                    {% else %}
+                        {% set is_confirmed = False %}
+                    {% endif %}
+                    <tr>
+                        <td class="d-none">{{ user.id }}</td>
+                        <td>
+                            <a href="#"
+                               class="text-decoration-none"
+                               hx-get="{{ url_for('admin.users_form', id=user.id) }}"
+                               hx-target="body"
+                               hx-swap="beforeend">{{ user.email }}
+                            </a>
+                        </td>
+                        <td data-sort="{{ current_login }}">{{ current_login }}</td>
+                        <td class="text-center">{{ boolIcon(user.active) }}</td>
+                        <td class="text-center">{{ boolIcon(is_confirmed) }}</td>
+                        <td class="text-center">{{ boolIcon(user.is_admin) }}</td>
+
+                        <td class="d-flex justify-content-center">
+                            {% if current_user != user -%}
+                                <button
+                                        class="btn btn-link text-decoration-none p-0"
+                                        hx-confirm="Confirm User Removal"
+                                        hx-post="{{ url_for('admin.users_delete', id=user.id) }}"
+                                        hx-swap="none"
+                                >
+                                    <span class="fs-6 pe-1">{{ svg_icon("trash3", size="1.2em") }}</span>
+                                </button>
+                            {% else -%}
+                                <span class="fs-6 disabled text-muted pe-1">{{ svg_icon("trash3", size="1.2em") }}</span>
+                            {% endif -%}
+                        </td>
+                    </tr>
+
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock admin_content %}
+
+{% block scripts %}
+    {{ super() }}
+    <script type="module">
+        import {formatTimeStampValue} from '{{ url_for('static', filename='js/main.js') }}';
+
+        const table = new simpleDatatables.DataTable("#users-table", {
+            fixedColumns: false,
+            columns: [
+                {
+                    // Convert value in timestamp column form unix timestamp to formatted date string
+                    select: 2, render: (data, cell, row) => formatTimeStampValue(data, "YYYY-MM-DD hh:mm:ss a")
+                },
+            ],
+        })
+        // htmx must process new pages to active hx attributes
+        table.on('datatable.page', function (page) {
+            const t = htmx.find("#users-table")
+            htmx.process(t)
+            _hyperscript.processNode(t)
+        });
+    </script>
+{% endblock %}

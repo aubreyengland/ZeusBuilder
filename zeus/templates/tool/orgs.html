@@ -1,0 +1,11 @@
+{% extends "tool/tool_base.html" %}
+
+{% block tool_content %}
+    <div class="mx-2 mx-lg-4 mt-5">
+        <div class="container-fluid container-lg">
+            <div class="card d-flex flex-column gap-3">
+                {% include 'tool/orgs_table.html' %}
+            </div>
+        </div>
+    </div>
+{% endblock tool_content %}

@@ -1,0 +1,62 @@
+{% extends "tool/tool_base.html" %}
+{% from '_macros.jinja2' import event_error_popover -%}
+
+{% block tool_content %}
+    <div class="mx-2 mx-lg-4 mt-5">
+<div class="container-fluid py-3 px-3 px-xl-5 bg-white" style="border-radius: 6px;">
+    <h1 class="fs-3 py-3">{{ title }} Events</h1>
+
+<div class="table-responsive-xxl">
+    <table id="events-table" class="table table-hover table-sm">
+        {% if vm.table.rows %}
+            <thead>
+            <tr>
+                <th class="d-none" scope="col">Job_Id</th>
+                <th data-format="UNIX" data-type="date" scope="col">Timestamp</th>
+                <th scope="col">Result</th>
+                <th scope="col">Org</th>
+                <th scope="col">Action</th>
+                <th scope="col">Type</th>
+                <th scope="col">Object</th>
+                <th scope="col">Error</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in vm.table.rows %}
+                {% set badge_type = 'success' if row['result'] == 'OK' else 'danger' %}
+                 <tr>
+                    <td class="d-none">{{ row['job_id'] }}</td>
+                    <td data-sort="{{ row['timestamp'] }}">{{ row['timestamp'] }}</td>
+                    <td><span class="badge bg-{{ badge_type }}">{{ row['result'] }}</span></td>
+                    <td>{{ row['org'] }}</td>
+                    <td><span class="badge {{ row['action']|lower }}">{{ row['action'] }}</span></td>
+                    <td>{{ row['type'] }}</td>
+                    <td>{{ row['name'] }}</td>
+                    {%- if row['error'] -%}
+                        <td>{{ event_error_popover(row['error']) }}</td>
+                    {%- else -%}
+                    <td></td>
+                    {%- endif -%}
+                </tr>
+            {% endfor %}
+            </tbody>
+        {% endif %}
+    </table>
+</div>
+</div>
+<script type="module">
+    import {formatTimeStampValue} from '{{ url_for('static', filename='js/main.js') }}';
+
+    const table = new simpleDatatables.DataTable("#events-table", {
+        fixedColumns: false,
+        columns: [
+            {
+                // Convert value in timestamp column form unix timestamp to formatted date string
+                select: 1, render: (data, cell, row) => formatTimeStampValue(data)
+            },
+        ],
+    })
+</script>
+
+</div>
+{% endblock %}

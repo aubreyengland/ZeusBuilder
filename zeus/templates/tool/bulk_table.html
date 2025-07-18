@@ -1,0 +1,90 @@
+{% from '_macros.jinja2' import htmxSpinner, bulk_action_select %}
+{#
+    Render a table of rows from an bulk workbook.
+    Allows the user to change the action for each row before submission
+#}
+{#
+    Join the grid_track attributes from each column into a space-separated string
+     for the grid-template-columns
+#}
+{% set grid_tracks = table.columns|map(attribute='grid_track')|join(' ') %}
+{% set bulk_view = tool ~ '.' ~ 'bulk_' ~ data_type %}
+{% set bulk_options = data_type_actions(tool, data_type) %}
+    
+    <table id="bulk-{{ data_type }}-table" class="gridtable"
+           hx-vals='{"job_id": "{{ vm.job_id }}"}'
+           style="grid-template-columns: 40px 32px {{ grid_tracks }};">
+
+        <thead>
+        <tr>
+            <th data-sortable="false">#</th>
+            <th data-sortable="false"></th>
+            {% for col in table.columns %}
+                {% set hidden = 'd-none' if col.hidden else '' %}
+                {% set center = 'text-center' if col.name == 'action' else '' -%}
+                <th scope="col" class="{{ center }} {{ hidden }}">{{ col.title }}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for table_row in table.rows %}
+            {% set row_id = table_row["id"] %}
+            {% set action_value = table_row["action"] %}
+            <tr
+                class="bulk-{{ data_type }}-item"
+                data-action="{{ action_value }}"
+                hx-swap="none" hx-include="this"
+                hx-indicator="find .htmx-indicator"
+                hx-trigger="bulk-{{ data_type }}-submit"
+                hx-sync="#bulk-{{ data_type }}-table:queue all"
+                hx-vals='{"row_id": "{{ row_id }}"}'
+                hx-post="{{ url_for(bulk_view) }}"
+                {% if action_value|lower == 'ignore' %}hx-disable{% endif %}
+                _="on 'bulk-{{ data_type }}-submit'
+                     if (event.target.getAttribute('data-action')).toLowerCase() === 'ignore'
+                       handleIgnoredRow('result-{{ data_type }}-{{ row_id }}')
+                     end
+                   end
+                   on change from <select/> in me
+                     set @data-action to event.target.value
+                     if the event.target.value.toLowerCase() === 'ignore'
+                       set @hx-disable to ''
+                     else
+                       remove @hx-disable
+                     end
+                     call htmx.process(me)
+                   end"
+                >
+
+                <td id="idx-{{ data_type }}-{{ row_id }}" class="fw-bold" >{{ row_id }}</td>
+                <td id="result-{{ data_type }}-{{ row_id }}" class="justify-content-center overflow-visible">{{ htmxSpinner('text-dark') }}</td>
+
+                {% for col in table.columns %}
+
+                    {% if col.name == "action" -%}
+                        <td class="justify-content-center">{{ bulk_action_select( col.value(table_row), '', bulk_options)}}</td>
+
+                    {% else %}
+                        <td data-content="{{ col.name }}">{{  col.value(table_row) }}</td>
+
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{#
+    htmx request to get overall result of job once all individual requests
+    are complete. `hx-sync attribute causes this request to be queued
+    until all in-progress htmx requests have completed.
+#}
+    <div id="bulk-{{ data_type }}-result"
+         class="d-none"
+         hx-target=".tab-content"
+         hx-swap="beforeend"
+         hx-get="{{ url_for(results_view, data_type=data_type, job_id=vm.job_id) }}"
+         hx-sync="#bulk-{{ data_type }}-table:queue all"
+         hx-trigger="bulk-{{ data_type }}-result delay:1000ms"
+         hx-vals='{"job_id": "{{ vm.job_id }}", "data_type": "{{ data_type }}", "path": "{{ tool }}"}'>
+    </div>

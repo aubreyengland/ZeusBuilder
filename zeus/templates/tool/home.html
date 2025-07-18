@@ -1,0 +1,35 @@
+{% extends "tool/tool_base.html" %}
+{% from "_macros.jinja2" import disable_active_org_options, svg_icon %}
+{#
+    Tool home landing page.
+    Loads the sidebar with org select element and main content with list group
+    containing a link to the subpages (browse, import, export, manage)
+    Subpage links (except manage) are disabled if active org not set
+#}
+
+{% block tool_content %}
+    <div class="container">
+        <div class="mt-3 text-center">
+            <span class="display-4">Welcome </span>
+            <span class="display-6 fst-italic ms-2">{{ current_user.display_name }}</span>
+        </div>
+
+        {#
+            Clickable card for each available action Links are disabled if active org is not set
+        #}
+        <div class="row justify-content-center flex-wrap mt-5">
+            {% for opt in options %}
+                <div class="col-lg-4 mb-4">
+                    <a class="card h-100 {{ disable_active_org_options(tool, opt) }}" href="{{ url_for(opt.route) }}">
+                        <div class="card-body">
+                            <h3 class="card-title">
+                                <span>{{ svg_icon(opt.name) }}</span>{{ opt.title }}
+                            </h3>
+                            <p class="card-text">{{opt.text}}</p>
+                          </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock tool_content %}

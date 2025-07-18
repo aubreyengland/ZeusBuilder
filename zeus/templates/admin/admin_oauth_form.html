@@ -1,0 +1,66 @@
+{% from "_macros.jinja2" import render_form_field, render_choices_field, render_switch_field, render_input_field, render_field_errors %}
+
+<div hx-target="this" hx-swap="outerHTML"  class="modal-body" style="overflow-y: auto; min-height: 160px;">
+    <h1 class="fs-6 mx-1">{{ vm.op|title }} OAuth App</h1>
+    <form class="p-3"
+          style="border: 1px solid #d1d0ce; border-radius: 8px;"
+          hx-post="{{ url_for('admin.oauth_' ~ vm.op) }}"
+    >
+        <div class="row g-3 align-items-end">
+            {{ vm.form.csrf_token }}
+            {% if vm.op == 'create' -%}
+            <div class="col-md-12">
+                {{ vm.form.org_type.label(class_="form-label") }}
+                {{ vm.form.org_type(**{"class": "form-control border-2", "tabindex": "0", "hx-get": url_for('admin.oauth_form') }) }}
+            </div>
+            {% else -%}
+            {{ vm.form.org_type(hidden="") }}
+            {{ vm.form.id() }}
+            {% endif -%}
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                {{ render_switch_field(vm.form.is_global) }}
+                </div>
+                <div class="col-md-8">
+                    {#
+                        select element is static so the hyperscript property can be attached
+                        to disable the user dropdown if the global switch is enabled
+                        options are rendered form the form
+                    #}
+                    {%- if vm.form.user.errors -%}
+                        {%- set class = "form-control is-invalid" -%}
+                    {%- else %}
+                        {%- set class = "form-control" -%}
+                    {%- endif -%}
+{#                    {{ vm.form.user.label }}#}
+                    <select
+                            class="{{ class }}" id="user" name="user"
+                            _="on load or click from #is_global
+                               set my disabled to #is_global.checked"
+                    >
+                        {% for opt in vm.form.user -%}
+                        {{ opt() }}
+                        {% endfor -%}
+                    </select>
+                    {{ render_field_errors(vm.form.user) }}
+                </div>
+            </div>
+
+            {{ render_form_field(vm.form.name, layout_cls="col-md-12") }}
+            {{ render_form_field(vm.form.client_id, layout_cls="col-md-12") }}
+            {{ render_form_field(vm.form.client_secret, layout_cls="col-md-12") }}
+            {{ render_form_field(vm.form.redirect_uri, layout_cls="col-md-12") }}
+            {{ render_form_field(vm.form.api_endpoint, layout_cls="col-md-12") }}
+            {{ render_form_field(vm.form.auth_endpoint, layout_cls="col-md-12") }}
+            {{ render_form_field(vm.form.token_endpoint, layout_cls="col-md-12") }}
+            {% if vm.form.scopes is defined %}
+                {{ render_choices_field(vm.form.scopes, layout_cls="col-md-12") }}
+            {% endif %}
+        </div>
+
+        <div class="form-group mt-3">
+            <button type="submit" class="btn btn-outline-danger">Save</button>
+            <button type="button" class="btn btn-outline-secondary" _="on click trigger closeModal">Close</button>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,83 @@
+{% from '_macros.jinja2' import svg_icon %}
+{% macro detail_cell(col, row, idx) -%}
+    <a href="#"
+       hx-post="{{ url_for(tool ~ '.detail') }}"
+       hx-indicator="#page-indicator"
+       hx-include='closest tr'
+       hx-vals='{"data_type": "{{ col.detail_data_type }}"}'
+       hx-target="body"
+       hx-swap="beforeend">
+        <span>{{ svg_icon('eye-fill') }}</span>
+    </a>
+{% endmacro -%}
+
+
+{% if vm.status == 'finished' -%}
+    <div class="table-responsive-xxl fade-in">
+        <table id="{{ vm.data_type }}-browse-table" class="table table-striped table-sm table-hover">
+            {% if vm.table.rows %}
+                <thead>
+                <tr>
+                    {% for col in vm.table.columns %}
+                        {%- set hidden = 'd-none' if col.hidden else '' %}
+                        <th scope="col"
+                            data-searchable="{{ col.searchable|default('true') }}"
+                            data-sortable="{{ col.sortable|default('true') }}"
+                            class="{{ hidden }}"
+                        >
+                            {{ col.title }}
+                        </th>
+
+                    {% endfor %}
+                </tr>
+                </thead>
+
+                <tbody>
+                {% for row in vm.table.rows %}
+                    <tr>
+                        {% for col in vm.table.columns %}
+                            {%- set hidden = 'd-none' if col.hidden else '' %}
+                            {%- if col.detail_link %}
+                                <td class="align-middle">{{ detail_cell(col, row) }}</td>
+                            {%- else %}
+                                <td class="{{ hidden }}" data-content="{{ col.value(row) }}">
+                                    <input name="{{ col.name }}" class="form-control-plaintext"
+                                           value="{{ col.value(row) }}">
+                                </td>
+                            {%- endif %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            {% endif %}
+        </table>
+    </div>
+
+    <script>
+        // create browse Datatables within an IFFE to avoid redeclaration errors when the refresh button is clicked
+        (function () {
+            function init_htmx() {
+                const t = htmx.find("#{{ vm.data_type }}-browse-table")
+                htmx.process(t)
+                _hyperscript.processNode(t)
+            }
+
+            const {{ vm.data_type }}Table = new simpleDatatables.DataTable("#{{ vm.data_type }}-browse-table")
+            // htmx must process hx attributes when they are added to the DOM by the data table.
+            {{ vm.data_type }}Table.on('datatable.init', () => init_htmx())
+            {{ vm.data_type }}Table.on('datatable.page', () => init_htmx())
+            {{ vm.data_type }}Table.on('datatable.perpage', () => init_htmx())
+            {{ vm.data_type }}Table.on('datatable.search', () => init_htmx())
+            {{ vm.data_type }}Table.on('datatable.sort', () => init_htmx())
+        })()
+    </script>
+
+{% else -%}
+    <div id="{{ vm.data_type }}-browse-polling" data-job-id="{{ vm.job_id }}"
+         class="htmx-indicator htmx-request spinner-border text-dark spinner-page" style="width: 3rem; height: 3rem;"
+         hx-put="{{ url_for(tool ~ '.' ~ 'browse') }}"
+         hx-vals='{"job_id": "{{ vm.job_id }}", "data_type": "{{ vm.data_type }}"}'
+         hx-trigger="load delay:2s"
+         hx-swap="outerHTML">
+    </div>
+{% endif -%}

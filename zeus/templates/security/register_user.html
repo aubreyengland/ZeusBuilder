@@ -1,0 +1,38 @@
+{% extends "security/sec_base.html" %}
+{% from "_macros.jinja2" import render_form_field, render_field_errors %}
+
+{% block auth_form %}
+
+    <form action="{{ url_for_security('register') }}" method="POST" name="register_user_form">
+        {{ register_user_form.hidden_tag() }}
+        {{ render_form_field(register_user_form.email) }}
+
+        {% if security.username_enable %}
+            {{ render_form_field(register_user_form.username) }}
+        {% endif %}
+
+        {{ render_form_field(register_user_form.first_name) }}
+        {{ render_form_field(register_user_form.last_name) }}
+        {{ render_form_field(register_user_form.password) }}
+
+        {% if register_user_form.password_confirm %}
+            {{ render_form_field(register_user_form.password_confirm) }}
+        {% endif %}
+
+        {{ register_user_form.submit(class="w-100 mt-3 btn btn-danger")|safe }}
+    </form>
+
+{% endblock %}
+
+{% block auth_links %}
+
+    <li class="list-inline-item">
+        <a href="{{ url_for_security('forgot_password') }}" class="text-decoration-none">{{ _fsdomain('Reset Password') }}</a>
+    </li>
+    {% if config["SECURITY_CONFIRMABLE"] %}
+        <li class="list-inline-item">
+            <a href="{{ url_for_security('send_confirmation') }}" class="text-decoration-none">{{ _fsdomain('Resend Registation Info') }}</a>
+        </li>
+    {% endif %}
+
+{% endblock %}

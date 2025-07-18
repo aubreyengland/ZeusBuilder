@@ -28,11 +28,17 @@ def build(input_folder: str, alert_emails: list[str]) -> pd.DataFrame:
         rows.append({
             "Action": "CREATE",
             "Name": f"{site.name} 911 ALERT",
-            "Site": site.name,
-            "Recipients": ",".join(alert_emails),
-            "Module": "5",
-
-            
+            "Target IDs": site.name,
+            "Module": "Emergency Services Management",
+            "Rule": "Emergency Call Alert",
+            "Condition": "Critical",
+            "Time Frame Type": "all_day",
+            "Frequency": "daily",
+            "Time Frame From": "00:00:00",
+            "Time Frame To": "00:00:00",
+            "Email Recipients": ",".join(alert_emails),
+            "Chat Channels": "",
+            "Status": "active",       
         })
 
     return pd.DataFrame(rows)

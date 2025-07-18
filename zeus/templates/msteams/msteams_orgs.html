@@ -1,0 +1,107 @@
+{% extends "tool/tool_base.html" %}
+
+{% block tool_content %}
+    <div class="container">
+
+        <div class="row mt-5 justify-content-center">
+            <div class="card col-lg-10 d-flex flex-column gap-3">
+                <div class="d-flex justify-content-between px-2 pb-3">
+                    <div class="flex-grow-1"><h1 class="fs-3">{{ title }} Organizations</h1></div>
+                        <div>
+                            <a href="{{ url_for(tool ~ '.orgs_form') }}"
+                               class="btn btn-outline-danger">
+                                {{ svg_icon("plus", size="1.2em") }} New
+                            </a>
+                        </div>
+                    </div>
+
+                <div class="row">
+                    <table class="table align-middle">
+
+                        <thead>
+                        <tr>
+                            <th class="d-none" scope="col">id</th>
+                            <th scope="col" class="">Organization Name</th>
+                            <th scope="col" class="">OAuth App</th>
+                            <th scope="col" class="">Refresh Token Expires</th>
+                            <th scope="col" class="text-center">Actions</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for org in vm.rows %}
+
+                            <tr>
+                                <td class="d-none">{{ org.id }}</td>
+                                <td >{{ org.name }}</td>
+                                <td >{{ org.oauth_app }}</td>
+
+                                {#
+                                    The formatTimeField js function imported at the bottom of the page
+                                    renders the timestamp value in the data-timestamp attribute using
+                                    The data-timestamp attribute causes the value to be replaced with a formatted date
+                                    based on the data-timeformat value
+                                #}
+
+                                <td data-timestamp="{{ org.refresh_expires }}" data-timeformat="MMM DD, YYYY hh:mm A"></td>
+
+                                <td class="d-flex justify-content-evenly">
+                                    <div class="d-flex flex-column">
+                                        <div class="flex-grow-1">
+                                        <a href="{{ url_for(tool ~ '.orgs_form', id=org.id) }}"
+                                           class="text-decoration-none px-2">
+                                            <span class="fs-6 pe-1">{{ svg_icon("pencil-square", size="1.2em") }}</span>
+                                            <span>Edit</span>
+                                        </a>
+                                        </div>
+                                        {#
+                                            Delete button makes htmx request to delete endpoint.
+                                            The response includes the HX-Refresh header which tells htmx
+                                            to refresh the page. This is done to load the update list of
+                                            orgs in the table and in the org select in the sidebar. It also
+                                            allows session.wxccorg to be cleared if the active org was deleted.
+                                            hx-swap = none tells htmx not to update the dom based on the
+                                            response, which isn't necessary since the page will be refreshed.
+                                        #}
+                                        <div class="flex-grow-1">
+                                        <a role="button"
+                                           hx-swap="none"
+                                           class="text-decoration-none px-2"
+                                           hx-confirm="Confirm {{ tool|title }} Org Deletion"
+                                           hx-post="{{ url_for(tool ~ '.orgs_delete', id=org.id) }}">
+                                            <span class="fs-6 pe-1">{{ svg_icon("trash3", size="1.2em") }}</span>
+                                            <span>Delete</span>
+                                        </a>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex flex-column">
+                                        <div class="flex-grow-1">
+                                        <a role="button"
+                                           class="text-decoration-none px-2"
+                                           href="{{ org.auth_url }}">
+                                            <span class="fs-6 pe-1">{{ svg_icon("key", size="1.2em") }}</span>
+                                            <span>Authorize</span>
+                                        </a>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            {% if org.refresh_expires %}
+                                        <a role="button"
+                                           class="text-decoration-none px-2"
+                                           href="{{ org.refresh_url }}">
+                                            <span class="fs-6 pe-1">{{ svg_icon("arrow-clockwise", size="1.2em") }}</span>
+                                            <span>Refresh</span>
+                                        </a>
+                                            {% endif %}
+                                       </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock tool_content %}

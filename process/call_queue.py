@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from migrator.models import StoreCallQueue
-from migrator.utils import find_excel_files, normalize_extension, extract_corp_info, format_full_extension
+from migrator.utils import find_excel_files, normalize_extension, extract_corp_info, format_full_extension, extract_rx_number
 
 
 def extract_call_queues(file_path: str) -> list[StoreCallQueue]:
@@ -46,6 +46,8 @@ def extract_call_queues(file_path: str) -> list[StoreCallQueue]:
                     ext = ext.strip()
                     if ext.isdigit() and len(ext) == 3:
                         formatted_ext = format_full_extension(corp_number, ext)
+                        if formatted_ext.startswith("0"):
+                            formatted_ext = "9" + formatted_ext[1:]
                         normalized_members.append(formatted_ext)
                     elif ext.isdigit() and len(ext) == 7:
                         normalized_members.append(ext)
@@ -73,6 +75,7 @@ def build(input_folder: str) -> pd.DataFrame:
     all_rows = []
 
     for file_path in find_excel_files(input_folder):
+        rx_number = extract_rx_number(file_path)
         for cq in extract_call_queues(file_path):
             
             department = cq.site_name
@@ -80,12 +83,14 @@ def build(input_folder: str) -> pd.DataFrame:
                 department += " RX"
             elif "E-STORE" in cq.name.upper():
                 department += " E-STORE"
-            
+
+            phone_numbers_value = rx_number if cq.extension == "605" and rx_number else ""
+
             all_rows.append({
                 "Name": cq.name,
                 "Site Name": cq.site_name,  # Use the combined CORP XYZ REGION
                 "Extension": cq.extension,
-                "Phone Numbers": "",
+                "Phone Numbers": phone_numbers_value,
                 "Members": cq.members,
                 "Department": department,  # Use the combined CORP XYZ REGION
                 "Cost Center": cq.site_name,  # Use the combined CORP XYZ REGION

@@ -1,0 +1,38 @@
+<div id="modal-{{ data_type }}" class="modal d-none"
+     _="on closeModal add .closing then wait for animationend then remove .closing then add .d-none to me">
+    <div class="modal-underlay" _="on click trigger closeModal"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">{{ title }} Worksheet Errors</h5>
+        </div>
+        <div class="modal-body"  style="overflow-y: auto; min-height: 160px;">
+            {% if load_errors.rows %}
+                {#
+                    If individual row errors are present, display them by row # in a table
+                #}
+                <div class="p-3" style="border: 1px solid #d1d0ce; border-radius: 8px;">
+                    <table class="table table-sm">
+                        <thead>
+                        <tr><th scope="col">Row</th><th scope="col">Error</th></tr>
+                        </thead>
+                        <tbody>
+                        {% for row_resp in load_errors.rows %}
+                            <tr><th scope="row">{{ row_resp.index }}</th><td>{{ row_resp.error }}</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                {#
+                    If the worksheet itself could not be loaded, display the sheet error message
+                #}
+                <div class="p-3" style="border: 1px solid #d1d0ce; border-radius: 8px;">
+                    <p>{{ load_errors.sheet }}</p>
+                </div>
+            {% endif %}
+        </div>
+        <div class="form-group mt-3">
+            <button type="button" class="btn btn-outline-secondary" _="on click trigger closeModal">Close</button>
+        </div>
+        </div>
+    </div>
