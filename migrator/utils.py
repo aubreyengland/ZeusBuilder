@@ -3,7 +3,7 @@ import pandas as pd
 from migrator.models import StoreData
 import json
 _rx_map_cache = None
-def extract_corp_info(file_path: str) -> tuple[StoreData, str] | None:
+def extract_corp_info(file_path: str) -> tuple[StoreData, str, str] | None:
     """
     Extracts CORP NUMBER and PHYSICAL ADDRESS from the 'STORE INFORMATION' tab
     and returns a validated StoreData model along with the unprocessed corp number.
@@ -31,9 +31,16 @@ def extract_corp_info(file_path: str) -> tuple[StoreData, str] | None:
         if address_rows.empty or pd.isna(address_rows.iloc[0, 1]):
             raise ValueError(f"Missing or empty PHYSICAL ADDRESS in 'STORE INFORMATION' sheet of {file_path}")
         physical_address = str(address_rows.iloc[0, 1])
+        
+        # Extract the common name
+        common_name_rows = df[df[0] == "COMMON NAME"]
+        if common_name_rows.empty or pd.isna(common_name_rows.iloc[0, 1]):
+            common_name = ":( COMMON NAME NOT FOUND :("
+        else:
+            common_name = str(common_name_rows.iloc[0, 1]).strip().upper()
 
         # Return both processed and unprocessed corp numbers
-        return StoreData.from_extracted(str(corp_number), str(physical_address), region=region), raw_corp_number
+        return StoreData.from_extracted(str(corp_number), str(physical_address), region=region), raw_corp_number, common_name
     except Exception as e:
         print(f"Error reading STORE INFORMATION from {file_path}: {e}")
         return None
@@ -105,14 +112,17 @@ ALERT_EMAILS = ["telecom2@heb.com", "ZoomPhoneStores@heb.com"]
     
 LINE_KEY_SETS = {
     "RX": [
-        {"key_number": "2", "type": "call_park", "number": "*804", "alias": ""},
-        {"key_number": "3", "type": "call_park", "number": "*805", "alias": ""},
-        {"key_number": "4", "type": "call_park", "number": "*806", "alias": ""},
-        {"key_number": "4", "type": "call_park", "number": "*806", "alias": ""},
-        {"key_number": "5","type": "speed_dial", "number": "18668136769", "alias": "ROC"},
-        {"key_number": "6","type": "speed_dial", "number": "15159691998", "alias": "RX VM"},
-        {"key_number": "7","type": "speed_dial", "number": "2109362999", "alias": "HEB CA"},
-        {"key_number": "8","type": "speed_dial", "number": "100", "alias": "STORE PAGE"},
+        {"key_number": "2", "type": "call_park", "number": "*810", "alias": ""},
+        {"key_number": "3", "type": "call_park", "number": "*811", "alias": ""},
+        {"key_number": "4", "type": "call_park", "number": "*812", "alias": ""},
+        {"key_number": "5", "type": "speed_dial", "number": "*995327", "alias": "Call Pickup"},
+        {"key_number": "6", "type": "call_park", "number": "*813", "alias": ""},
+        {"key_number": "7", "type": "call_park", "number": "*814", "alias": ""},
+        {"key_number": "8", "type": "line", "number": "{corp_ext}0525", "alias": ""},
+        {"key_number": "9","type": "speed_dial", "number": "18668136769", "alias": "ROC"},
+        {"key_number": "10","type": "speed_dial", "number": "15159691998", "alias": "RX VM"},
+        {"key_number": "11","type": "speed_dial", "number": "2109362999", "alias": "HEB CA"},
+        {"key_number": "12","type": "speed_dial", "number": "100", "alias": "STORE PAGE"},
     ],
     "BUSCTR+BOOKKEEPING": [
         {"key_number": "2", "type": "call_park", "number": "*801", "alias": ""},
@@ -121,7 +131,7 @@ LINE_KEY_SETS = {
         {"key_number": "5", "type": "line", "number": "{corp_ext}0863", "alias": ""},
         {"key_number": "6", "type": "speed_dial", "number": "100", "alias": "STORE PAGE"},
         {"key_number": "7", "type": "speed_dial", "number": "678", "alias": "CURBSIDE"},
-        {"key_number": "8", "type": "speed_dial", "number": "*88{corp_ext}", "alias": "NIGHT MODE"},
+        {"key_number": "8", "type": "speed_dial", "number": "*88{corp_ext}0863", "alias": "NIGHT MODE"},
         {"key_number": "9", "type": "speed_dial", "number": "600", "alias": "MIC COVERAGE"},
         {"key_number": "10", "type": "speed_dial", "number": "608", "alias": "CCMs"},
         {"key_number": "11", "type": "speed_dial", "number": "683", "alias": "MAINT"},
@@ -143,7 +153,63 @@ LINE_KEY_SETS = {
         {"key_number": "27", "type": "speed_dial", "number": "2109362999", "alias": "HEB CA"},
         {"key_number": "28", "type": "speed_dial", "number": "699", "alias": "O-NIGHT COVERAGE"},
     ],
-    "DEFAULT": [
+    "BASEOPS+INFODESK": [
+        {"key_number": "2", "type": "blf", "number": "{corp_ext}0400", "alias":	"TSL 400"},
+        {"key_number": "3", "type": "blf", "number": "{corp_ext}0200", "alias":	"TSL 200"},
+        {"key_number": "4", "type": "blf", "number": "{corp_ext}0401", "alias":	"TSL 401"},
+        {"key_number": "5", "type": "blf", "number": "{corp_ext}0201", "alias":	"TSL 201"},
+        {"key_number": "6", "type": "blf", "number": "{corp_ext}0402", "alias":	"TSL 402"},
+        {"key_number": "7", "type": "blf", "number": "{corp_ext}0202", "alias":	"TSL 202"},
+        {"key_number": "8", "type": "blf", "number": "{corp_ext}0403", "alias":	"TSL 403"},
+        {"key_number": "9", "type": "blf", "number": "{corp_ext}0203", "alias":	"TSL 203"},
+        {"key_number": "10", "type": "speed_dial", "number": "2109362999", "alias":	"HEB CA"},
+        {"key_number": "11", "type": "speed_dial", "number": "608", "alias":	"Art HG"},
+        {"key_number": "12", "type": "speed_dial", "number": "603", "alias":	"Bakery"},
+        {"key_number": "13", "type": "speed_dial", "number": "672", "alias":	"Beer Wine HG"},
+        {"key_number": "14", "type": "speed_dial", "number": "673", "alias":	"Bulk HG"},
+        {"key_number": "15", "type": "speed_dial", "number": "658", "alias":	"Cater Sales HG"},
+        {"key_number": "16", "type": "speed_dial", "number": "664", "alias":	"Chefs Case HG"},
+        {"key_number": "17", "type": "speed_dial", "number": "636", "alias":	"C-School HG"},
+        {"key_number": "18", "type": "speed_dial", "number": "606", "alias":	"Deli"},
+        {"key_number": "19", "type": "speed_dial", "number": "699", "alias":	"Floral HG"},
+        {"key_number": "20", "type": "speed_dial", "number": "695", "alias":	"Foodie HG"},
+        {"key_number": "21", "type": "speed_dial", "number": "607", "alias":	"Grocery"},
+        {"key_number": "22", "type": "speed_dial", "number": "674", "alias":	"Healthy Liv HG"},
+        {"key_number": "23", "type": "speed_dial", "number": "641", "alias":	"Info Desk HG"},
+        {"key_number": "24", "type": "speed_dial", "number": "602", "alias":	"Market"},
+        {"key_number": "25", "type": "speed_dial", "number": "609", "alias":	"Produce"},
+        {"key_number": "26", "type": "speed_dial", "number": "618", "alias":	"Receiving HG"},
+        {"key_number": "27", "type": "speed_dial", "number": "620", "alias":	"Seafood"},
+        {"key_number": "28", "type": "speed_dial", "number": "686", "alias":	"Service HG"},
+        {"key_number": "29", "type": "speed_dial", "number": "681", "alias":	"SR Admin HG"},
+        {"key_number": "30", "type": "speed_dial", "number": "683", "alias":	"Talent Coach HG"},
+        {"key_number": "31", "type": "speed_dial", "number": "676", "alias":	"Gift Basket HG"},
+        {"key_number": "32", "type": "speed_dial", "number": "610", "alias":	"Coverage HG"},
+        {"key_number": "34", "type": "speed_dial", "number": "489", "alias":	"Service_Manager-W"},
+        {"key_number": "35", "type": "blf", "number": "{corp_ext}0439", "alias":	"Bakery-W"},
+        {"key_number": "36", "type": "blf", "number": "{corp_ext}0472", "alias":	"Wine_Steward-W"},
+        {"key_number": "37", "type": "blf", "number": "{corp_ext}0473", "alias":	"Bulk_Foods-W"},
+        {"key_number": "38", "type": "blf", "number": "{corp_ext}0465", "alias":	"Executive_Chef-W"},
+        {"key_number": "39", "type": "blf", "number": "{corp_ext}0458", "alias":	"Catering_Manager-W"},
+        {"key_number": "40", "type": "blf", "number": "{corp_ext}0463", "alias":	"FOH_Manager-W"},
+        {"key_number": "41", "type": "blf", "number": "{corp_ext}0469", "alias":	"Deli-W"},
+        {"key_number": "42", "type": "blf", "number": "{corp_ext}0465", "alias":	"Executive_Chef-W"},
+        {"key_number": "43", "type": "blf", "number": "{corp_ext}0445", "alias":	"Sous_Chef-W"},
+        {"key_number": "44", "type": "blf", "number": "{corp_ext}0498", "alias":	"Floral-W"},
+        {"key_number": "45", "type": "blf", "number": "{corp_ext}0494", "alias":	"Foodie_494-W"},
+        {"key_number": "46", "type": "blf", "number": "{corp_ext}0495", "alias":	"Foodie_495-W"},
+        {"key_number": "47", "type": "blf", "number": "{corp_ext}0477", "alias":	"Gro_Lead-W"},
+        {"key_number": "48", "type": "blf", "number": "{corp_ext}0479", "alias":	"Gro_Mgr-W"},
+        {"key_number": "49", "type": "blf", "number": "{corp_ext}0476", "alias":	"Grocery2-W"},
+        {"key_number": "50", "type": "blf", "number": "{corp_ext}0481", "alias":	"Gift_Baskets-W"},
+        {"key_number": "51", "type": "blf", "number": "{corp_ext}0429", "alias":	"Market-W"},
+        {"key_number": "52", "type": "blf", "number": "{corp_ext}0499", "alias":	"Pro_Mgr-W"},
+        {"key_number": "53", "type": "blf", "number": "{corp_ext}0418", "alias":	"Receiving -W"},
+        {"key_number": "54", "type": "blf", "number": "{corp_ext}0482", "alias":	"Shelf_Edge-W"},
+        {"key_number": "55", "type": "blf", "number": "{corp_ext}0428", "alias":	"Seafood-W"},
+        {"key_number": "56", "type": "blf", "number": "{corp_ext}0483", "alias":	"Maintenance-W"},
+    ],
+    "STORE_DEFAULT": [
         {"key_number": "2", "type": "speed_dial", "number": "100", "alias": "STORE PAGE"},
         {"key_number": "3", "type": "speed_dial", "number": "678", "alias": "CURBSIDE"},
         {"key_number": "4", "type": "speed_dial", "number": "600", "alias": "MIC COVERAGE"},
@@ -166,7 +232,29 @@ LINE_KEY_SETS = {
         {"key_number": "21", "type": "speed_dial", "number": "686", "alias": "BOOKKEEPING"},
         {"key_number": "22", "type": "speed_dial", "number": "2109362999", "alias": "HEB CA"},
         {"key_number": "23", "type": "speed_dial", "number": "699", "alias": "O-NIGHT COVERAGE"},
-    ],    
+    ],
+    "CENTRAL_MARKET_DEFAULT": [
+        {"key_number": "2", "type": "speed_dial", "number": "608", "alias": "Art"},
+        {"key_number": "3", "type": "speed_dial", "number": "607", "alias": "Grocery"},
+        {"key_number": "4", "type": "speed_dial", "number": "603", "alias": "Bakery"},
+        {"key_number": "5", "type": "speed_dial", "number": "674", "alias": "Healthy Living"},
+        {"key_number": "6", "type": "speed_dial", "number": "672", "alias": "Beer & Wine"},
+        {"key_number": "7", "type": "speed_dial", "number": "841", "alias": "Info Desk"},
+        {"key_number": "8", "type": "speed_dial", "number": "473", "alias": "Bulk Foods"},
+        {"key_number": "9", "type": "speed_dial", "number": "602", "alias": "Market"},
+        {"key_number": "10", "type": "speed_dial", "number": "658", "alias": "Cater Sales"},
+        {"key_number": "11", "type": "speed_dial", "number": "601", "alias": "Food Service"},
+        {"key_number": "12", "type": "speed_dial", "number": "664", "alias": "Chef's Case"},
+        {"key_number": "13", "type": "speed_dial", "number": "609", "alias": "Produce"},
+        {"key_number": "14", "type": "speed_dial", "number": "236", "alias": "Cooking School"},
+        {"key_number": "15", "type": "speed_dial", "number": "618", "alias": "Receiving"},
+        {"key_number": "16", "type": "speed_dial", "number": "606", "alias": "Deli"},
+        {"key_number": "17", "type": "speed_dial", "number": "620", "alias": "Seafood"},
+        {"key_number": "18", "type": "speed_dial", "number": "699", "alias": "Floral"},
+        {"key_number": "19", "type": "speed_dial", "number": "681", "alias": "SR Admin"},
+        {"key_number": "20", "type": "speed_dial", "number": "695", "alias": "Foodie"},
+        {"key_number": "22", "type": "speed_dial", "number": "2109362999", "alias": "HEB CA"},
+    ],
 }
 
 

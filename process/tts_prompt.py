@@ -24,7 +24,32 @@ DEFAULT_SPANISH_TTS_PROMPT = [
 
 
 def extract_call_flow_data(file_path: str) -> dict:
-    cf = pd.read_excel(file_path, sheet_name="CALL FLOW", header=None)
+    try:
+        cf = pd.read_excel(file_path, sheet_name="CALL FLOW", header=None)
+    except ValueError as e:
+        print(f"Error reading CALL FLOW sheet in {file_path}: {e}")
+        return {
+            "greeting": "",
+            "location": "",
+            "location_spanish": "",
+            "rx_number": "",
+            "store_hours": "",
+            "zoom_menu_en": "",
+            "zoom_menu_es": "",
+        }
+
+    if cf.empty or len(cf.columns) < 2:
+        print(f"❌ 'CALL FLOW' sheet in {file_path} is empty or malformed")
+        return {
+            "greeting": "",
+            "location": "",
+            "location_spanish": "",
+            "rx_number": "",
+            "store_hours": "",
+            "zoom_menu_en": "",
+            "zoom_menu_es": "",
+        }
+
     key_col = cf.columns[0]
     val_col = cf.columns[1]
 

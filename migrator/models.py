@@ -17,14 +17,14 @@ class StoreData(BaseModel):
     region: Optional[str] = None  # This will be computed from corp_number
     parsed_address: Optional[ParsedAddress] = None
     site_name: Optional[str] = None
-
+    
 
     @property
     def name(self) -> str:
         return f"CORP {self.corp_number} {self.region}" if self.region else f"CORP {self.corp_number}"
 
     @classmethod
-    def from_extracted(cls, corp_number: str, physical_address: str, region: Optional[str] = None):
+    def from_extracted(cls, corp_number: str, physical_address: str, common_name:str = "", region: Optional[str] = None):
         lines = physical_address.strip().splitlines()
         address_line1 = ""
         address_line2 = ""
@@ -69,7 +69,8 @@ class StoreData(BaseModel):
             corp_number=corp_number,
             physical_address=physical_address,
             parsed_address=parsed,
-            region=region
+            region=region,
+            common_name=common_name
         )
         
     

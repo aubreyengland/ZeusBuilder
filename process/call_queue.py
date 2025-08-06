@@ -10,7 +10,7 @@ def extract_call_queues(file_path: str) -> list[StoreCallQueue]:
         result = extract_corp_info(file_path)
         if not result:
             return []
-        site, raw_corp_number = result  # Unpack the tuple
+        site, raw_corp_number, _ = result  # Unpack the tuple
         corp_number = raw_corp_number.zfill(3)
         site_name = f"CORP {corp_number} {site.region}".strip()
 

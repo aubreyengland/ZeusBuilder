@@ -11,7 +11,7 @@ def extract_shared_line_group(file_path: str) -> StoreSharedLineGroup | None:
         if not result:
             return None
 
-        site, raw_corp_number = result  # Unpack the tuple
+        site, raw_corp_number, _ = result  # Unpack the tuple
         site_name = f"CORP {raw_corp_number} {site.region}".strip() 
         
         
@@ -27,6 +27,8 @@ def extract_shared_line_group(file_path: str) -> StoreSharedLineGroup | None:
             "bus ctr 3",
             "bus ctr 4",
         }
+        
+            
 
         # Filter rows where "First Name" matches any from the list
         df["First Name Normalized"] = df["First Name or"].astype(str).str.lower().str.strip()
@@ -69,7 +71,7 @@ def build(input_folder: str) -> pd.DataFrame:
         rows.append({
             "Name": slg.name,
             "Site Name": slg.site_name,
-            "Extension Number": "863",  # Can make this dynamic if needed
+            "Extension Number": "863", 
             "Phone Number": "",
             "Primary Number": "",
             "Members": slg.members,
@@ -79,6 +81,34 @@ def build(input_folder: str) -> pd.DataFrame:
             "Audio Prompt Language": "en-US",
             "Private Calls": "Off"
         })
+        
+        # RX Shared Line Group
+        df = pd.read_excel(file_path, sheet_name="Zoom Import Sheet")
+        df["First Name Normalized"] = df["First Name or"].astype(str).str.lower().str.strip()
+        rx_filtered = df[df["First Name Normalized"].str.contains("rx", na=False)]
+
+        if not rx_filtered.empty:
+            rx_extensions = []
+            for _, row in rx_filtered.iterrows():
+                ext = normalize_extension(row.get("Extension"))
+                if ext.isdigit() and len(ext) == 3:
+                    rx_extensions.append(format_full_extension(slg.corp_number, ext))
+
+            rx_members = ",".join(rx_extensions)
+            if rx_members:
+                rows.append({
+                    "Name": "RX SHARED LINE",
+                    "Site Name": slg.site_name,
+                    "Extension Number": "525",
+                    "Phone Number": "",
+                    "Primary Number": "",
+                    "Members": rx_members,
+                    "Department": f"CORP {slg.corp_number} RX",
+                    "Cost Center": f"CORP {slg.corp_number}",
+                    "Shared Line Group Status": "Active",
+                    "Audio Prompt Language": "en-US",
+                    "Private Calls": "Off"
+                })
     return pd.DataFrame(rows)
 
 

@@ -23,8 +23,10 @@ def extract_line_key_targets(file_path: str) -> list[StoreCommonArea]:
         if not result:
             return []
 
-        site, raw_corp_number = result  # Unpack the tuple
+        site, raw_corp_number, common_name = result  # Unpack the tuple
         site_name = f"CORP {raw_corp_number} {site.region}".strip()  # Combine CORP XYZ and REGION
+
+        retrieved_common_name = common_name.upper().strip() if common_name else ":( COMMON NAME NOT FOUND!!! :("
 
         valid_devices = []
         for _, row in df.iterrows():
@@ -52,7 +54,8 @@ def extract_line_key_targets(file_path: str) -> list[StoreCommonArea]:
                 corp_number=site.corp_number,
                 name=final_name,
                 extension=extension,
-                site_name=site_name,  # Use the combined CORP XYZ REGION
+                site_name=site_name,
+                common_name=retrieved_common_name
             ))
 
         return valid_devices
@@ -61,9 +64,17 @@ def extract_line_key_targets(file_path: str) -> list[StoreCommonArea]:
         print(f" Error extracting line key targets from {file_path}: {e}")
         return []
 
-def get_line_key_set(device_name: str) -> list[dict]:
+
+def get_line_key_set(device_name: str, retrieved_common_name: str) -> list[dict]:
     name = device_name.upper()
-    if "RX" in name:
+    common_name = retrieved_common_name.upper()
+    if "CENTRAL MARKET" in common_name:
+        return LINE_KEY_SETS["CENTRAL_MARKET_DEFAULT"]
+    elif "BASE OPS" in name:
+        return LINE_KEY_SETS["BASEOPS+INFODESK"]
+    elif "INFORMATION DESK" in name:
+        return LINE_KEY_SETS["BASEOPS+INFODESK"]
+    elif "RX" in name:
         return LINE_KEY_SETS["RX"]
     elif "BOOKKEEPING" in name:
         return LINE_KEY_SETS["BUSCTR+BOOKKEEPING"]
@@ -72,7 +83,7 @@ def get_line_key_set(device_name: str) -> list[dict]:
     if "FAX" or "-W" in name:
         pass
     else:
-        return LINE_KEY_SETS["DEFAULT"]
+        return LINE_KEY_SETS["CENTRAL_MARKET_DEFAULT"]
 
 def generate_line_key_report(corp_number: str, common_areas: list, output_dir: str):
     # Ensure the output directory exists
@@ -119,12 +130,18 @@ def generate_line_key_report(corp_number: str, common_areas: list, output_dir: s
                 continue
 
             # Determine the appropriate line key set
-            if "RX" in upper_desc:
+            if "CENTRAL MARKET" in ((ca.get("Common Name", "") if isinstance(ca, dict) else ca.common_name).upper().strip()):
+                key_set = LINE_KEY_SETS["CENTRAL_MARKET_DEFAULT"]
+            elif "RX" in upper_desc:
                 key_set = LINE_KEY_SETS["RX"]
             elif any(k in upper_desc for k in ["BOOKKEEPING", "BUS CTR"]):
                 key_set = LINE_KEY_SETS["BUSCTR+BOOKKEEPING"]
+            elif "BASE OPS" in upper_desc:
+                key_set = LINE_KEY_SETS["BASEOPS+INFODESK"]
+            elif "INFORMATION DESK" in upper_desc:
+                key_set = LINE_KEY_SETS["BASEOPS+INFODESK"]
             else:
-                key_set = LINE_KEY_SETS["DEFAULT"]
+                key_set = LINE_KEY_SETS["CENTRAL_MARKET_DEFAULT"]
 
             # Build the row dictionary
             row = {
@@ -154,7 +171,7 @@ def build(input_folder: str) -> pd.DataFrame:
     rows = []
     for file_path in find_excel_files(input_folder):
         for common_area in extract_line_key_targets(file_path):
-            key_set = get_line_key_set(common_area.name)
+            key_set = get_line_key_set(common_area.name, common_area.common_name)
 
             # Use extension as-is (avoid double-formatting)
             full_ext = common_area.extension

@@ -1,12 +1,7 @@
 import os
 import pandas as pd
 from migrator.models import StoreCommonArea
-from migrator.utils import find_excel_files
-from migrator.utils import extract_corp_info
-from migrator.utils import format_full_extension
-from migrator.utils import resolve_region
-from migrator.utils import extract_rx_number
-
+from migrator.utils import find_excel_files, extract_corp_info,format_full_extension, resolve_region, extract_rx_number
 
 def extract_rx_common_areas(file_path: str) -> list[StoreCommonArea]:
     """
@@ -84,7 +79,7 @@ def build(input_folder: str) -> pd.DataFrame:
         if not result:
             continue
 
-        site, raw_corp_number = result  # Unpack the tuple
+        site, raw_corp_number, _ = result  # Unpack the tuple
 
         # Ensure raw_corp_number is zero-padded
         raw_corp_number = raw_corp_number.zfill(3)

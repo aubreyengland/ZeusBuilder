@@ -10,7 +10,7 @@ def build(input_folder: str) -> pd.DataFrame:
         result = extract_corp_info(file_path)
         if not result:
             continue
-        store, raw_corp_number = result
+        store, raw_corp_number, _ = result
         full_corp_number = raw_corp_number.zfill(3)
         site_name = f"CORP {full_corp_number} {store.region}".strip()
 

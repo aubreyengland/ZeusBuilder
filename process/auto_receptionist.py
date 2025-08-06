@@ -199,7 +199,7 @@ def build(input_folder: str) -> pd.DataFrame:
         if not result:
             continue
 
-        site, raw_corp_number = result  # Unpack the tuple
+        site, raw_corp_number, _ = result  # Unpack the tuple
         site_name = f"CORP {raw_corp_number} {site.region}".strip()  # Combine CORP XYZ and REGION
 
         # Generate rows for the Auto Receptionist

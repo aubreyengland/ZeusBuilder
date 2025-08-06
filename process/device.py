@@ -10,7 +10,7 @@ def extract_devices(file_path: str) -> list[StoreDevice]:
         if not result:
             return []
 
-        site, raw_corp_number = result  # Unpack the tuple
+        site, raw_corp_number, _ = result  # Unpack the tuple
         corp_number = site.corp_number  # Processed corp number
         site_name = f"CORP {raw_corp_number} {site.region}".strip()  # Combine CORP XYZ and REGION
 
@@ -89,7 +89,7 @@ def build(input_folder: str) -> pd.DataFrame:
         result = extract_corp_info(file_path)
         if not result:
             continue
-        site, _ = result
+        site, _, _ = result
         site_name = f"CORP {site.corp_number} {site.region}".strip()
         for device in extract_devices(file_path):
             phone_brand = "Poly" if device.phone.strip().lower() == "poly" else device.phone
